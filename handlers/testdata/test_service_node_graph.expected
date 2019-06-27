@@ -1,0 +1,106 @@
+{
+  "timestamp": 1523364075,
+  "duration": 600,
+  "graphType": "workload",
+  "elements": {
+    "nodes": [
+      {
+        "data": {
+          "id": "240c2314cefc993c5d9479a5c349fbd2",
+          "nodeType": "workload",
+          "namespace": "bookinfo",
+          "workload": "productpage-v1",
+          "app": "productpage",
+          "version": "v1",
+          "destServices": [
+            {
+              "namespace": "bookinfo",
+              "name": "productpage"
+            }
+          ],
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "100.00"
+              }
+            },
+            {
+              "protocol": "tcp",
+              "rates": {
+                "tcpIn": "31.00"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "data": {
+          "id": "c72e12859eac1424516065e6a64c92e0",
+          "nodeType": "workload",
+          "namespace": "istio-system",
+          "workload": "ingressgateway-unknown",
+          "app": "ingressgateway",
+          "version": "unknown",
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpOut": "100.00"
+              }
+            },
+            {
+              "protocol": "tcp",
+              "rates": {
+                "tcpOut": "31.00"
+              }
+            }
+          ],
+          "isInaccessible": true,
+          "isMisconfigured": "labels=[version]",
+          "isOutside": true,
+          "isRoot": true
+        }
+      }
+    ],
+    "edges": [
+      {
+        "data": {
+          "id": "347e210a97f5235b5a60b810ef1bfaa6",
+          "source": "c72e12859eac1424516065e6a64c92e0",
+          "target": "240c2314cefc993c5d9479a5c349fbd2",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "100.00",
+              "httpPercentReq": "100.0"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "c3fa6dedc4a1b3d61a3bb48dcb46dafa",
+          "source": "c72e12859eac1424516065e6a64c92e0",
+          "target": "240c2314cefc993c5d9479a5c349fbd2",
+          "traffic": {
+            "protocol": "tcp",
+            "rates": {
+              "tcp": "31.00"
+            },
+            "responses": {
+              "-": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

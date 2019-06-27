@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    deployment:
+      image_version: dev
+  roles:
+  - kiali-deploy
+  - kiali-remove

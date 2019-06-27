@@ -1,0 +1,506 @@
+{
+  "timestamp": 1523364075,
+  "duration": 600,
+  "graphType": "app",
+  "elements": {
+    "nodes": [
+      {
+        "data": {
+          "id": "66bce9783dc2dbb5fecb178b0108484e",
+          "nodeType": "app",
+          "namespace": "bankapp",
+          "app": "pricing",
+          "destServices": [
+            {
+              "namespace": "bankapp",
+              "name": "pricing"
+            }
+          ],
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "20.00"
+              }
+            }
+          ],
+          "isInaccessible": true,
+          "isOutside": true
+        }
+      },
+      {
+        "data": {
+          "id": "7b1032e9c5683c53fb50ed8831fbd61b",
+          "nodeType": "workload",
+          "namespace": "bookinfo",
+          "workload": "kiali-2412",
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "50.00"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "data": {
+          "id": "6cdb3cf3ee9a17772f13b295368e112a",
+          "nodeType": "app",
+          "namespace": "bookinfo",
+          "app": "details",
+          "destServices": [
+            {
+              "namespace": "bookinfo",
+              "name": "details"
+            }
+          ],
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "80.00",
+                "httpIn3xx": "20.00",
+                "httpIn4xx": "20.00",
+                "httpIn5xx": "20.00"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "data": {
+          "id": "2c22af42b0c750749399ed2838c56054",
+          "nodeType": "app",
+          "namespace": "bookinfo",
+          "app": "productpage",
+          "destServices": [
+            {
+              "namespace": "bookinfo",
+              "name": "productpage"
+            }
+          ],
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "170.00",
+                "httpOut": "160.00"
+              }
+            },
+            {
+              "protocol": "tcp",
+              "rates": {
+                "tcpOut": "31.00"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "data": {
+          "id": "c219903556c3afdb05eda7e610aba628",
+          "nodeType": "app",
+          "namespace": "bookinfo",
+          "app": "ratings",
+          "destServices": [
+            {
+              "namespace": "bookinfo",
+              "name": "ratings"
+            }
+          ],
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "60.00",
+                "httpIn5xx": "20.00"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "data": {
+          "id": "37ddc91db761d432f3fff1943802cad7",
+          "nodeType": "app",
+          "namespace": "bookinfo",
+          "app": "reviews",
+          "destServices": [
+            {
+              "namespace": "bookinfo",
+              "name": "reviews"
+            }
+          ],
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "100.00",
+                "httpOut": "124.00"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "data": {
+          "id": "4ee8019fc0454770a401b89d427277bf",
+          "nodeType": "app",
+          "namespace": "bookinfo",
+          "app": "tcp",
+          "destServices": [
+            {
+              "namespace": "bookinfo",
+              "name": "tcp"
+            }
+          ],
+          "traffic": [
+            {
+              "protocol": "tcp",
+              "rates": {
+                "tcpIn": "581.00"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "data": {
+          "id": "19950ddefadd370bf5434953c1944c80",
+          "nodeType": "app",
+          "namespace": "istio-system",
+          "app": "ingressgateway",
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpOut": "100.00"
+              }
+            },
+            {
+              "protocol": "tcp",
+              "rates": {
+                "tcpOut": "150.00"
+              }
+            }
+          ],
+          "isInaccessible": true,
+          "isOutside": true,
+          "isRoot": true
+        }
+      },
+      {
+        "data": {
+          "id": "4a639f9922515051205421a93f94e0b8",
+          "nodeType": "service",
+          "namespace": "unknown",
+          "service": "unknown",
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpIn": "4.00",
+                "httpIn4xx": "4.00"
+              }
+            }
+          ],
+          "isInaccessible": true
+        }
+      },
+      {
+        "data": {
+          "id": "b30b0078325bf2e1adb4d57c4c0c2665",
+          "nodeType": "unknown",
+          "namespace": "unknown",
+          "workload": "unknown",
+          "app": "unknown",
+          "version": "unknown",
+          "traffic": [
+            {
+              "protocol": "http",
+              "rates": {
+                "httpOut": "100.00"
+              }
+            },
+            {
+              "protocol": "tcp",
+              "rates": {
+                "tcpOut": "400.00"
+              }
+            }
+          ],
+          "isInaccessible": true,
+          "isRoot": true
+        }
+      }
+    ],
+    "edges": [
+      {
+        "data": {
+          "id": "2c8bf7e7efb0982b18c76d507200a8b7",
+          "source": "19950ddefadd370bf5434953c1944c80",
+          "target": "2c22af42b0c750749399ed2838c56054",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "100.00",
+              "httpPercentReq": "100.0"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "18fa6836a929941e8deabad5fa1cae62",
+          "source": "19950ddefadd370bf5434953c1944c80",
+          "target": "4ee8019fc0454770a401b89d427277bf",
+          "traffic": {
+            "protocol": "tcp",
+            "rates": {
+              "tcp": "150.00"
+            },
+            "responses": {
+              "-": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "e9ffbf24e385c93dfa124d81e2ac33a7",
+          "source": "2c22af42b0c750749399ed2838c56054",
+          "target": "2c22af42b0c750749399ed2838c56054",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "20.00",
+              "httpPercentReq": "12.5"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "ff5217a9064e30e4fb875256dab56037",
+          "source": "2c22af42b0c750749399ed2838c56054",
+          "target": "37ddc91db761d432f3fff1943802cad7",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "60.00",
+              "httpPercentReq": "37.5"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "16a0c4225bbdbd471e6e7b8fd438733d",
+          "source": "2c22af42b0c750749399ed2838c56054",
+          "target": "4ee8019fc0454770a401b89d427277bf",
+          "traffic": {
+            "protocol": "tcp",
+            "rates": {
+              "tcp": "31.00"
+            },
+            "responses": {
+              "-": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "89fa162a49acca6ff974afd30aab2ff0",
+          "source": "2c22af42b0c750749399ed2838c56054",
+          "target": "6cdb3cf3ee9a17772f13b295368e112a",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "80.00",
+              "http3xx": "20.00",
+              "http4xx": "20.00",
+              "http5xx": "20.00",
+              "httpPercentErr": "50.0",
+              "httpPercentReq": "50.0"
+            },
+            "responses": {
+              "200": {
+                "-": "25.0"
+              },
+              "300": {
+                "-": "25.0"
+              },
+              "400": {
+                "-": "25.0"
+              },
+              "500": {
+                "-": "25.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "4aaf7cb151db415f3ba4918be2296c38",
+          "source": "37ddc91db761d432f3fff1943802cad7",
+          "target": "37ddc91db761d432f3fff1943802cad7",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "40.00",
+              "httpPercentReq": "32.3"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "5fb225e800c037b99f8767d961d187fc",
+          "source": "37ddc91db761d432f3fff1943802cad7",
+          "target": "4a639f9922515051205421a93f94e0b8",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "4.00",
+              "http4xx": "4.00",
+              "httpPercentErr": "100.0",
+              "httpPercentReq": "3.2"
+            },
+            "responses": {
+              "404": {
+                "NR": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "edb2cdfc2a757d260aa847d55e9eadde",
+          "source": "37ddc91db761d432f3fff1943802cad7",
+          "target": "66bce9783dc2dbb5fecb178b0108484e",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "20.00",
+              "httpPercentReq": "16.1"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "a553e38605904d17c50ab1d0db84f113",
+          "source": "37ddc91db761d432f3fff1943802cad7",
+          "target": "c219903556c3afdb05eda7e610aba628",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "60.00",
+              "http5xx": "20.00",
+              "httpPercentErr": "33.3",
+              "httpPercentReq": "48.4"
+            },
+            "responses": {
+              "200": {
+                "-": "66.7"
+              },
+              "500": {
+                "-": "33.3"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "efe83e483ada36899c34ef66a7974d31",
+          "source": "b30b0078325bf2e1adb4d57c4c0c2665",
+          "target": "2c22af42b0c750749399ed2838c56054",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "50.00",
+              "httpPercentReq": "50.0"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "d4fc7bd6594937fa94402fcfcc9f3a95",
+          "source": "b30b0078325bf2e1adb4d57c4c0c2665",
+          "target": "4ee8019fc0454770a401b89d427277bf",
+          "traffic": {
+            "protocol": "tcp",
+            "rates": {
+              "tcp": "400.00"
+            },
+            "responses": {
+              "-": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "53c67fb349dcfbd2327e3162a0e338aa",
+          "source": "b30b0078325bf2e1adb4d57c4c0c2665",
+          "target": "7b1032e9c5683c53fb50ed8831fbd61b",
+          "traffic": {
+            "protocol": "http",
+            "rates": {
+              "http": "50.00",
+              "httpPercentReq": "50.0"
+            },
+            "responses": {
+              "200": {
+                "-": "100.0"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

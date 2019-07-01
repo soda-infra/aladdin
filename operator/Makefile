@@ -12,10 +12,11 @@ AUTH_STRATEGY ?= openshift
 CREDENTIALS_USERNAME ?= admin
 CREDENTIALS_PASSPHRASE ?= admin
 KIALI_IMAGE_VERSION ?= dev
-# NAMESPACE ?= istio-system
-NAMESPACE ?= kiali-operator
+NAMESPACE ?= istio-system
 VERBOSE_MODE ?= 3
 SERVICE_TYPE ?= NodePort
+KIALI_IMAGE_NAME ?= soda2019/aladdin
+KIALI_IMAGE_PULL_POLICY ?= IfNotPresent
 
 # Find the client executable (either istiooc or oc or kubectl)
 OC ?= $(shell which istiooc 2>/dev/null || which oc 2>/dev/null || which kubectl 2>/dev/null || echo "MISSING-OC/KUBECTL-FROM-PATH")
@@ -30,7 +31,7 @@ help: Makefile
 	@echo
 
 .download-operator-sdk-if-needed:
-	@if [ "$(shell which operator-sdk 2>/dev/null || echo -n "")" = "" ]; then \
+	@if [ "$(shell which operator-sdk 2>/dev/null || echo -n "")" == "" ]; then \
 	  mkdir -p ../_output/operator-sdk-install ;\
 	  if [ -x "../_output/operator-sdk-install/operator-sdk" ]; then \
 	    echo "You do not have operator-sdk installed in your PATH. Will use the one found here: ../_output/operator-sdk-install/operator-sdk" ;\
@@ -117,7 +118,7 @@ KIALI_IMAGE_VERSION=${KIALI_IMAGE_VERSION} \
 NAMESPACE="${NAMESPACE}" \
 VERBOSE_MODE="${VERBOSE_MODE}" \
 SERVICE_TYPE="${SERVICE_TYPE}" \
-envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f - --validate=false
+envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
 
 ## kiali-delete: Remove a Kiali CR from the cluster, informing the Kiali operator to uninstall Kiali.
 kiali-delete: secret-delete

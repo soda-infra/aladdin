@@ -17,10 +17,12 @@ CREDENTIALS_USERNAME ?= admin
 CREDENTIALS_PASSPHRASE ?= admin
 KIALI_IMAGE_NAME ?= soda2019/aladdin
 KIALI_IMAGE_PULL_POLICY ?= IfNotPresent
-KIALI_IMAGE_VERSION ?= ${OPERATOR_IMAGE_VERSION}
+KIALI_IMAGE_VERSION ?= dev
 NAMESPACE ?= istio-system
 VERBOSE_MODE ?= 3
 SERVICE_TYPE ?= NodePort
+KIALI_IMAGE_NAME ?= soda2019/aladdin
+KIALI_IMAGE_PULL_POLICY ?= IfNotPresent
 
 # Find the client executable (either istiooc or oc or kubectl)
 OC ?= $(shell which istiooc 2>/dev/null || which oc 2>/dev/null || which kubectl 2>/dev/null || echo "MISSING-OC/KUBECTL-FROM-PATH")

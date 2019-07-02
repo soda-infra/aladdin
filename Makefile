@@ -13,7 +13,7 @@ COMMIT_HASH ?= $(shell git rev-parse HEAD)
 # WARNING: If you have previously run the 'docker' target but
 # later want to change the CONSOLE_VERSION then you must run
 # the 'clean' target first before re-running the 'docker' target.
-CONSOLE_VERSION ?= latest
+CONSOLE_VERSION ?= local
 CONSOLE_LOCAL_DIR ?= ../../../../../kiali-ui
 
 # Version label is used in the OpenShift/K8S resources to identify

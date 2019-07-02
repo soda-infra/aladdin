@@ -1,6 +1,10 @@
+SHELL := /bin/bash
+
 # Details about the Kiali operator image.
-OPERATOR_IMAGE_NAME ?= quay.io/kiali/kiali-operator
-OPERATOR_IMAGE_VERSION ?= latest
+OPERATOR_IMAGE_REPO ?= quay.io
+OPERATOR_IMAGE_NAME ?= ${OPERATOR_IMAGE_REPO}/kiali/kiali-operator
+OPERATOR_IMAGE_PULL_POLICY ?= IfNotPresent
+OPERATOR_IMAGE_VERSION ?= dev
 OPERATOR_NAMESPACE ?= kiali-operator
 OPERATOR_WATCH_NAMESPACE ?= kiali-operator
 
@@ -11,9 +15,10 @@ OPERATOR_INSTALL_KIALI ?= false
 AUTH_STRATEGY ?= openshift
 CREDENTIALS_USERNAME ?= admin
 CREDENTIALS_PASSPHRASE ?= admin
-KIALI_IMAGE_VERSION ?= dev
-# NAMESPACE ?= istio-system
-NAMESPACE ?= kiali-operator
+KIALI_IMAGE_NAME ?= soda2019/aladdin
+KIALI_IMAGE_PULL_POLICY ?= IfNotPresent
+KIALI_IMAGE_VERSION ?= ${OPERATOR_IMAGE_VERSION}
+NAMESPACE ?= istio-system
 VERBOSE_MODE ?= 3
 SERVICE_TYPE ?= NodePort
 
@@ -30,7 +35,7 @@ help: Makefile
 	@echo
 
 .download-operator-sdk-if-needed:
-	@if [ "$(shell which operator-sdk 2>/dev/null || echo -n "")" = "" ]; then \
+	@if [ "$(shell which operator-sdk 2>/dev/null || echo -n "")" == "" ]; then \
 	  mkdir -p ../_output/operator-sdk-install ;\
 	  if [ -x "../_output/operator-sdk-install/operator-sdk" ]; then \
 	    echo "You do not have operator-sdk installed in your PATH. Will use the one found here: ../_output/operator-sdk-install/operator-sdk" ;\
@@ -50,6 +55,16 @@ help: Makefile
 operator-build: .ensure-operator-sdk-exists
 	@echo Build operator
 	"${OP_SDK}" build "${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_VERSION}"
+
+## crc-operator-push: Push the Kiali operator container image to a CRC VM repo
+crc-operator-push:
+	# OpenShift 4 container registry stores images in the namespace as declared in the image name.
+	@echo Make sure the image namespace exists
+	@${OC} get namespace $(shell echo ${OPERATOR_IMAGE_NAME} | sed -e 's/.*\/\(.*\)\/.*/\1/') > /dev/null 2>&1 || \
+     ${OC} create namespace $(shell echo ${OPERATOR_IMAGE_NAME} | sed -e 's/.*\/\(.*\)\/.*/\1/') > /dev/null 2>&1
+	@echo Push operator image to image repo
+	docker push "${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_VERSION}"
+	${OC} policy add-role-to-user system:image-puller system:serviceaccount:${OPERATOR_NAMESPACE}:kiali-operator --namespace=$(shell echo ${OPERATOR_IMAGE_NAME} | sed -e 's/.*\/\(.*\)\/.*/\1/') > /dev/null 2>&1
 
 ## operator-push: Push the Kiali operator container image to a remote repo
 operator-push:
@@ -74,18 +89,21 @@ operator-push:
 # to remember to do it yourself. It will only do this if it was told to install Kiali.
 operator-create: operator-delete .ensure-operator-ns-does-not-exist
 	@echo Deploy Operator
-	OPERATOR_IMAGE_NAME="${OPERATOR_IMAGE_NAME}" \
-OPERATOR_IMAGE_VERSION="${OPERATOR_IMAGE_VERSION}" \
-OPERATOR_NAMESPACE="${OPERATOR_NAMESPACE}" \
-OPERATOR_WATCH_NAMESPACE="${OPERATOR_WATCH_NAMESPACE}" \
-OPERATOR_INSTALL_KIALI="${OPERATOR_INSTALL_KIALI}" \
-ACCESSIBLE_NAMESPACES="${ACCESSIBLE_NAMESPACES}" \
-AUTH_STRATEGY="${AUTH_STRATEGY}" \
-CREDENTIALS_USERNAME="${CREDENTIALS_USERNAME}" \
-CREDENTIALS_PASSPHRASE="${CREDENTIALS_PASSPHRASE}" \
-KIALI_IMAGE_VERSION="${KIALI_IMAGE_VERSION}" \
-NAMESPACE="${NAMESPACE}" \
-deploy/deploy-kiali-operator.sh
+	deploy/deploy-kiali-operator.sh \
+    --operator-image-name      "${OPERATOR_IMAGE_NAME}" \
+    --operator-image-pull-policy "${OPERATOR_IMAGE_PULL_POLICY}" \
+    --operator-image-version   "${OPERATOR_IMAGE_VERSION}" \
+    --operator-namespace       "${OPERATOR_NAMESPACE}" \
+    --operator-watch-namespace "${OPERATOR_WATCH_NAMESPACE}" \
+    --operator-install-kiali   "${OPERATOR_INSTALL_KIALI}" \
+    --accessible-namespaces    "${ACCESSIBLE_NAMESPACES}" \
+    --auth-strategy            "${AUTH_STRATEGY}" \
+    --credentials-username     "${CREDENTIALS_USERNAME}" \
+    --credentials-passphrase   "${CREDENTIALS_PASSPHRASE}" \
+    --kiali-image-name         "${KIALI_IMAGE_NAME}" \
+    --kiali-image-pull-policy  "${KIALI_IMAGE_PULL_POLICY}" \
+    --kiali-image-version      "${KIALI_IMAGE_VERSION}" \
+    --namespace                "${NAMESPACE}"
 
 ## operator-delete: Remove the Kiali operator resources from the cluster along with Kiali itself
 operator-delete: purge-kiali
@@ -113,11 +131,13 @@ endif
 	@echo Deploy Kiali using the settings found in deploy/kiali/kiali_cr_dev.yaml
 	cat deploy/kiali/kiali_cr_dev.yaml | \
 AUTH_STRATEGY="${AUTH_STRATEGY}" \
+KIALI_IMAGE_NAME=${KIALI_IMAGE_NAME} \
+KIALI_IMAGE_PULL_POLICY=${KIALI_IMAGE_PULL_POLICY} \
 KIALI_IMAGE_VERSION=${KIALI_IMAGE_VERSION} \
 NAMESPACE="${NAMESPACE}" \
 VERBOSE_MODE="${VERBOSE_MODE}" \
 SERVICE_TYPE="${SERVICE_TYPE}" \
-envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f - --validate=false
+envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
 
 ## kiali-delete: Remove a Kiali CR from the cluster, informing the Kiali operator to uninstall Kiali.
 kiali-delete: secret-delete

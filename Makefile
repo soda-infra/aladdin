@@ -3,7 +3,7 @@ SHELL=/bin/bash
 
 # Identifies the current build.
 # These will be embedded in the app and displayed when it starts.
-VERSION ?= v0.22.0-SNAPSHOT
+VERSION ?= v1.2.0-SNAPSHOT
 COMMIT_HASH ?= $(shell git rev-parse HEAD)
 
 # Indicates which version of the UI console is to be embedded
@@ -193,8 +193,7 @@ swagger-travis: swagger-validate
 	@echo Preparing container image files...
 	@mkdir -p _output/docker
 	@cp -r deploy/docker/* _output/docker
-	@mkdir -p ${GOPATH}/bin/kiali
-	@cp -r ${GOPATH}/bin/kiali _output/docker
+	@cp ${GOPATH}/bin/kiali _output/docker
 
 ## docker-build-kiali: Build Kiali container image into local docker daemon.
 docker-build-kiali: .prepare-docker-image-files
@@ -257,11 +256,11 @@ operator-create: docker-build-operator
 
 ## openshift-deploy: Delegates to the kiali-create target of the operator Makefile
 openshift-deploy: openshift-undeploy
-	IMAGE_VERSION=${CONTAINER_VERSION} "$(MAKE)" -C operator kiali-create
+	KIALI_IMAGE_VERSION=${CONTAINER_VERSION} "$(MAKE)" -C operator kiali-create
 
 ## openshift-undeploy: Delegates to the kiali-delete target of the operator Makefile
 openshift-undeploy: .ensure-operator-is-running
-	IMAGE_VERSION=${CONTAINER_VERSION} "$(MAKE)" -C operator kiali-delete
+	"$(MAKE)" -C operator kiali-delete
 
 ## k8s-deploy: Delegates to the kiali-create target of the operator Makefile
 k8s-deploy: openshift-deploy
@@ -271,24 +270,71 @@ k8s-undeploy: openshift-undeploy
 
 ## openshift-reload-image: Refreshing image in Openshift project.
 openshift-reload-image: .ensure-oc-exists
-	@echo Refreshing image in OpenShift project ${NAMESPACE}
+	@echo Refreshing Kiali image project ${NAMESPACE}
 	${OC} delete pod --selector=app=kiali -n ${NAMESPACE}
 
 ## k8s-reload-image: Refreshing image in Kubernetes namespace.
 k8s-reload-image: openshift-reload-image
 
-## gometalinter-install: Installs gometalinter
-gometalinter-install:
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install
-	curl -L https://github.com/dominikh/go-tools/releases/download/2019.1.1/staticcheck_linux_amd64 -o $$GOPATH/bin/staticcheck
-	chmod +x $$GOPATH/bin/staticcheck
+#
+# Targets when using a CRC-OpenShift VM environment
+#
 
-## lint: Runs gometalinter
+.prepare-crc-vars: .ensure-oc-exists
+	@$(eval CRC_REPO_INTERNAL ?= $(shell ${OC} get image.config.openshift.io/cluster -o custom-columns=INT:.status.internalRegistryHostname --no-headers 2>/dev/null))
+	@$(eval CRC_REPO ?= $(shell ${OC} get image.config.openshift.io/cluster -o custom-columns=EXT:.status.externalRegistryHostnames[0] --no-headers 2>/dev/null))
+	@$(eval CRC_NAME ?= ${CRC_REPO}/${CONTAINER_NAME})
+	@$(eval CRC_TAG ?= ${CRC_NAME}:${CONTAINER_VERSION})
+	@if [ "${CRC_REPO_INTERNAL}" == "" -o "${CRC_REPO_INTERNAL}" == "<none>" ]; then echo "Cannot determine internal registry hostname"; exit 1; fi
+	@if [ "${CRC_REPO}" == "" -o "${CRC_REPO}" == "<none>" ]; then echo "Cannot determine external registry hostname. The OpenShift image registry has not been made available for external client access"; exit 1; fi
+	@echo "CRC repos: external=[${CRC_REPO}] internal=[${CRC_REPO_INTERNAL}]"
+
+## crc-docker-build: Builds the images for local development on CRC VM
+crc-docker-build: crc-docker-build-operator crc-docker-build-kiali
+
+## crc-docker-build-operator: Builds the operator image for local development on CRC VM
+crc-docker-build-operator: .prepare-crc-vars
+	@echo Building Kiali Operator for CRC
+	OPERATOR_IMAGE_REPO=${CRC_REPO} OPERATOR_IMAGE_VERSION=${CONTAINER_VERSION} "$(MAKE)" -C operator operator-build
+
+## crc-docker-build-kiali: Builds the Kiali image for local development on CRC VM
+crc-docker-build-kiali: .prepare-crc-vars .prepare-docker-image-files
+	@echo Building Kiali for CRC
+	docker build -t ${CRC_TAG} _output/docker
+
+## crc-push: Pushes current container images to CRC VM
+crc-push: crc-push-operator crc-push-kiali
+
+## crc-push-operator: Pushes current Kiali operator container image to CRC VM
+crc-push-operator: crc-docker-build-operator
+	@echo Pushing current Kiali operator image to ${CRC_REPO}
+	OPERATOR_IMAGE_REPO=${CRC_REPO} OPERATOR_IMAGE_VERSION=${CONTAINER_VERSION} "$(MAKE)" -C operator crc-operator-push
+
+## crc-push-kiali: Pushes current Kiali container image to CRC VM
+crc-push-kiali: crc-docker-build-kiali
+	@echo Make sure the image namespace exists
+	@${OC} get namespace $(shell echo ${CRC_TAG} | sed -e 's/.*\/\(.*\)\/.*/\1/') > /dev/null 2>&1 || \
+     ${OC} create namespace $(shell echo ${CRC_TAG} | sed -e 's/.*\/\(.*\)\/.*/\1/') > /dev/null 2>&1
+	@echo Pushing current Kiali image to ${CRC_REPO}
+	docker push ${CRC_TAG}
+	${OC} policy add-role-to-user system:image-puller system:serviceaccount:${NAMESPACE}:kiali-service-account --namespace=$(shell echo ${CRC_TAG} | sed -e 's/.*\/\(.*\)\/.*/\1/') > /dev/null 2>&1
+
+## crc-operator-create: Creates the operator in the CRC VM
+crc-operator-create: .prepare-crc-vars
+	OPERATOR_IMAGE_REPO=${CRC_REPO_INTERNAL} OPERATOR_IMAGE_VERSION=${CONTAINER_VERSION} OPERATOR_IMAGE_PULL_POLICY="Always" "$(MAKE)" -C operator operator-create
+
+## crc-kiali-create: Deploys Kiali to CRC VM
+crc-kiali-create: .prepare-crc-vars openshift-undeploy
+	KIALI_IMAGE_REPO=${CRC_REPO_INTERNAL} KIALI_IMAGE_NAME=${CRC_REPO_INTERNAL}/${CONTAINER_NAME} KIALI_IMAGE_VERSION=${CONTAINER_VERSION} "$(MAKE)" KIALI_IMAGE_PULL_POLICY="Always" -C operator kiali-create
+
+## lint-install: Installs golangci-lint
+lint-install:
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $$(go env GOPATH)/bin v1.17.1
+
+## lint: Runs golangci-lint
 # doc.go is ommited for linting, because it generates lots of warnings.
 lint:
-	gometalinter --disable-all --enable=vet --enable=staticcheck --tests --deadline=500s --vendor $$(glide nv | grep -v '^\.$$')
-	gometalinter --disable-all --enable=vet --enable=staticcheck --tests --deadline=500s --vendor kiali.go
+	golangci-lint run --skip-files "doc\.go" --tests -D errcheck
 
 ## lint-all: Runs gometalinter with items from good to have list but does not run during travis
 lint-all:

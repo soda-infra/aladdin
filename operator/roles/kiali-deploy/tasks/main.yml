@@ -190,6 +190,17 @@
     role_kind: "{{ 'ClusterRole' if '**' in kiali_vars.deployment.accessible_namespaces else 'Role' }}"
     role_binding_kind: "{{ 'ClusterRoleBinding' if '**' in kiali_vars.deployment.accessible_namespaces else 'RoleBinding' }}"
 
+- name: Determine if the operator can support accessible_namespaces=**
+  vars:
+    role_json: "{{ lookup('k8s', api_version='rbac.authorization.k8s.io/v1', kind='ClusterRole', resource_name='kiali-operator') | default({}) }}"
+    query_cr: "rules[?apiGroups.contains(@, 'rbac.authorization.k8s.io')].resources.contains(@, 'clusterroles')"
+    query_crb: "rules[?apiGroups.contains(@, 'rbac.authorization.k8s.io')].resources.contains(@, 'clusterrolebindings')"
+  fail:
+    msg: "The operator cannot support deployment.accessible_namespaces set to '**' because it does not have permissions to create clusterroles or clusterrolebindings"
+  when:
+  - '"**" in kiali_vars.deployment.accessible_namespaces'
+  - (role_json | json_query(query_cr) != [true]) or (role_json | json_query(query_crb) != [true])
+
 - name: Find all namespaces (this is limited to what the operator has permission to see)
   set_fact:
     all_namespaces: "{{ lookup('k8s', api_version='v1', kind='Namespace') | default({}) | json_query('[].metadata.name') }}"
@@ -248,6 +259,7 @@
 
 # The following few tasks read the current Kiali configmap (if one exists) in order to figure out what
 # namespaces are no longer accessible. Those namespaces will have their Kiali roles removed.
+# They will also have the Kiali labels removed.
 
 - name: Find current configmap, if it exists
   set_fact:
@@ -269,10 +281,16 @@
   - current_configmap.data is defined
   - current_configmap.data['config.yaml'] is defined
 
+# Because we need to remove the labels that were created before, we must not allow the user to change
+# the label_selector. So if the current accessible_namespaces is not ** but the label_select is being changed,
+# we need to abort since we won't know what the old labels were. If current accessible_namespaces is ** then
+# we know we didn't create labels before so we can allow label_selector to change.
 - name: Do not allow user to change label selector
   fail:
     msg: "The api.namespaces.label_selector cannot be changed to a different value. It was [{{ current_label_selector }}] but is now configured to be [{{ kiali_vars.api.namespaces.label_selector }}]. In order to install Kiali with a different label selector than what was used before, please uninstall Kiali first."
   when:
+  - current_accessible_namespaces is defined
+  - '"**" not in current_accessible_namespaces'
   - current_label_selector is defined
   - kiali_vars.api.namespaces.label_selector is defined
   - current_label_selector != kiali_vars.api.namespaces.label_selector

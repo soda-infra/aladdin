@@ -60,7 +60,8 @@ metadata:
 annotations:
   ansible.operator-sdk/reconcile-period: "0s"
 spec:
-  strategy: "login"
+  auth:
+    strategy: "login"
   deployment:
     image_name: "soda2019/aladdin"
     image_pull_policy: "IfNotPresent"

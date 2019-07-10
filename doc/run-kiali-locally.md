@@ -1,66 +1,34 @@
 ## Run Kiali Locally
 
-### `kiali.go`파일 수정
+### `/source/kiali/kiali-ui/package.json` 수정
 
-* 실행 시 아래 명령어 실행
-
-`$GOPATH/bin/kiali -v 4 -config config.yaml`
-
-
-```
-## 242~243 line
-
-path, _ := filepath.Abs("./_output/docker/console/env.js")
-```
-
-* `./console/env.js` 를 `./_output/docker/console/index.html`으로 수정
-
-```
-## 261~262 line
-
-path, _ := filepath.Abs("./_output/docker/console/index.html")
-```
-
-* `./console/index.html` 을 `./_output/docker/console/index.html`으로 수정
-
-### `config/config.go`파일 수정
-
-```go
-### 325 line
-
-c.Auth.Strategy = getDefaultString(EnvAuthStrategy, AuthStrategyAnonymous)
-```
-
-* `AuthStrategyLogin`을 `AuthStrategyAnonymous`로 수정
-
-### `token.go` 파일 수정
-
-```go
-### 12 line
-token, err := ioutil.ReadFile('/source/kiali/kiali/src/github.com/kiali/kiali/vendor/k8s.io/client-go/tools/bootstrap/token')
-```
-
-* `/var/run/secrets/kubernetes.io/serviceaccount/token` 를 `/source/kiali/kiali/src/github.com/kiali/kiali/vendor/k8s.io/client-go/tools/bootstrap/token` 로 수정
-
-### `client_config.go` 파일 수정
-
-```go
-### 538~543 line
-func (config *inClusterClientConfig) Possible() bool {
-	fi, err := os.Stat("/var/lib/kubelet/pods/bc40f488-306f-450f-b233-6331890b46a6/volumes/kubernetes.io~secret/flannel-token-fs8jh/token")
-	return os.Getenv("KUBERNETES_SERVICE_HOST") != "" &&
-		os.Getenv("KUBERNETES_SERVICE_PORT") != "" &&
-		err == nil && !fi.IsDir()
+```json
+{
+  "name": "@kiali/kiali-ui",
+  "version": "1.2.0",
+  "proxy": "https://10.98.37.185:20001/kiali",
+  "description": "React UI for [Kiali](https://github.com/kiali/kiali).",
+  "keywords": [
+    "istio service mesh",
+    "kiali",
+    "monitoring",
+    "observability",
+    "okd",
+    "openshift"
+  ],
+  ...
 }
 ```
 
-* `/var/run/secrets/kubernetes.io/serviceaccount/token` 를 `/source/kiali/kiali/src/github.com/kiali/kiali/vendor/k8s.io/client-go/tools/bootstrap/token` 로 수정
+* `proxy` 추가. `kubectl get svc -A` 명령을 실행했을 때 나오는 `kiali` 서비스 IP로 설정함. 
+  (현재 나의 `kiali`서비스 타입은 `NodePort`이다)
+* 주소 뒤에 `/kiali`를 꼭 붙여줘야 제대로 동작한다.
 
-### `config.go` 파일 수정
+### `run kiali`
 
-```go
-# 319 line
-token, err := ioutil.ReadFile("/var/lib/kubelet/pods/bc40f488-306f-450f-b233-6331890b46a6/volumes/kubernetes.io~secret/flannel-token-fs8jh/token")
+```bash
+$ cd /source/kiali/kiali-ui
+$ yarn start
 ```
 
-* `/var/run/secrets/kubernetes.io/serviceaccount/token` 를 `/source/kiali/kiali/src/github.com/kiali/kiali/vendor/k8s.io/client-go/tools/bootstrap/token` 로 수정
+* `kiali-ui` 디렉터리로 가서 `yarn start`를 하면, `localhost:3000`에서 동작하는 것을 확인할 수 있다.

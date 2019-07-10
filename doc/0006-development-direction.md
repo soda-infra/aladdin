@@ -83,7 +83,7 @@
 
     * 일단 `kiali-ui`는 제쳐놓고 `Postman`이라는 툴을 사용하여 `kiali`에 api를 사용하여 요청을 보내보자.
 
-      ![postman1](/img/postman1.png)
+      ![postman1](./img/postman1.png)
 
       * `GET - 10.110.76.186:3000/api/search`를 입력해서 요청을 보내면 각종 Grafana Dashboards의 정보들을 볼 수 있다.
         (`10.110.76.186:3000`은 `kubectl get svc -A`을 했을 때 나오는 Grafana의 주소 및 포트이다)

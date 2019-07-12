@@ -19,6 +19,7 @@ type dashboardSupplier func(string, string, *config.Auth) ([]byte, int, error)
 const (
 	workloadDashboardPattern = "Istio%20Workload%20Dashboard"
 	serviceDashboardPattern  = "Istio%20Service%20Dashboard"
+	meshDashboardPattern     = "Istio%20Mesh%20Dashboard"
 )
 
 // GetGrafanaInfo provides the Grafana URL and other info, first by checking if a config exists
@@ -80,11 +81,16 @@ func getGrafanaInfo(requestToken string, dashboardSupplier dashboardSupplier) (*
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
+	meshDashboardPath, err := getDashboardPath(apiURL, meshDashboardPattern, &auth, dashboardSupplier)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
 
 	grafanaInfo := models.GrafanaInfo{
 		URL:                   externalURL,
 		ServiceDashboardPath:  serviceDashboardPath,
 		WorkloadDashboardPath: workloadDashboardPath,
+		MeshDashboardPath:     meshDashboardPath,
 	}
 
 	return &grafanaInfo, http.StatusOK, nil

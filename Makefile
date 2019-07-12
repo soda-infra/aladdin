@@ -43,6 +43,11 @@ NAMESPACE ?= istio-system
 # Use default go1.8 GOPATH if it isn't user defined
 GOPATH ?= ${HOME}/go
 
+# FROM operator/Makefile
+OPERATOR_WATCH_NAMESPACE ?= kiali-operator
+# Find the client executable (either istiooc or oc or kubectl)
+OC ?= $(shell which istiooc 2>/dev/null || which oc 2>/dev/null || which kubectl 2>/dev/null || echo "MISSING-OC/KUBECTL-FROM-PATH")
+
 # Environment variables set when running the Go compiler.
 GO_BUILD_ENVVARS = \
 	GOOS=linux \
@@ -208,6 +213,12 @@ docker-build-operator:
 
 ## docker-build: Build Kiali and Kiali operator container images into local docker daemon.
 docker-build: docker-build-kiali docker-build-operator
+
+## soda-build: 
+soda-build: build docker-build
+	@echo OPM
+	cat operator/deploy/kiali/aladdin_cr.yaml | ${OC} delete -n "${OPERATOR_WATCH_NAMESPACE}" -f -
+	cat operator/deploy/kiali/aladdin_cr.yaml | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
 
 .prepare-minikube:
 	@minikube addons list | grep -q "ingress: enabled" ; \

@@ -130,16 +130,19 @@ kiali-create: secret-create
 else
 kiali-create:
 endif
-	@echo Deploy Kiali using the settings found in deploy/kiali/kiali_cr_dev.yaml
-	cat deploy/kiali/kiali_cr_dev.yaml | \
-AUTH_STRATEGY="${AUTH_STRATEGY}" \
-KIALI_IMAGE_NAME=${KIALI_IMAGE_NAME} \
-KIALI_IMAGE_PULL_POLICY=${KIALI_IMAGE_PULL_POLICY} \
-KIALI_IMAGE_VERSION=${KIALI_IMAGE_VERSION} \
-NAMESPACE="${NAMESPACE}" \
-VERBOSE_MODE="${VERBOSE_MODE}" \
-SERVICE_TYPE="${SERVICE_TYPE}" \
-envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
+# 	@echo Deploy Kiali using the settings found in deploy/kiali/kiali_cr_dev.yaml
+# 	cat deploy/kiali/kiali_cr_dev.yaml | \
+# AUTH_STRATEGY="${AUTH_STRATEGY}" \
+# KIALI_IMAGE_NAME=${KIALI_IMAGE_NAME} \
+# KIALI_IMAGE_PULL_POLICY=${KIALI_IMAGE_PULL_POLICY} \
+# KIALI_IMAGE_VERSION=${KIALI_IMAGE_VERSION} \
+# NAMESPACE="${NAMESPACE}" \
+# VERBOSE_MODE="${VERBOSE_MODE}" \
+# SERVICE_TYPE="${SERVICE_TYPE}" \
+# envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
+	@echo Deploy Kiali using the settings found in deploy/kiali/aladdin_cr.yaml
+	cat deploy/kiali/aladdin_cr.yaml | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
+
 
 ## kiali-delete: Remove a Kiali CR from the cluster, informing the Kiali operator to uninstall Kiali.
 kiali-delete: secret-delete

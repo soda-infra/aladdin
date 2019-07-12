@@ -35,11 +35,20 @@ kiali 이미지를 업데이트하며 개발을 해야 하므로 kiali 이미지
 
 
 
-3. 이렇게 하고 pod를 지우고 다시 생성하면 master 노드에 잘 생성됨을 확인할 수 있다.
+3. 설정이 반영되도록 pod를 지우고 다시 생성한다.
 
    ```
    $ kubectl delete -f operator/deploy/kiali/kiali_cr.yaml -n kiali-operator
    $ kubectl apply -f operator/deploy/kiali/kiali_cr.yaml -n kiali-operator
+   ```
+
+
+
+
+4. kiali pod가 master 노드에 생성됨을 확인 할 수 있다.
+
+   ```
+   $ kubectl get pods -A -o wide
    ```
 
    

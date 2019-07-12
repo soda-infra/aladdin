@@ -81,7 +81,7 @@
     * 우선 `api`를 먼저 살펴보자. `vscode`에서 `api/grafana`로 검색하면 `routes.go`파일이 있고 각종 api를 볼 수 있다. 이것을 사용하면 `Grafana`의 `istio-mesh-dashboard` 정보를 가져올 수 있지 않을까?
       (`kiali-ui`의 `src/config/Config.ts`파일에도 각종 api에 관한 정보가 작성되어 있다.)
 
-    * 일단 `kiali-ui`는 제쳐놓고 `Postman`이라는 툴을 사용하여 `kiali`에 api를 사용하여 요청을 보내보자.
+    * `Postman`이라는 툴을 사용하여 `grafana`에 api를 사용하여 요청을 보내보자.
 
       ![postman1](./img/postman1.png)
 

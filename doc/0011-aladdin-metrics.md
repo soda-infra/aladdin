@@ -122,13 +122,13 @@ desired := kube_daemonset_labels
 ### 8. Pods Top CPU
 
 * 클러스터 내의 파드별 사용량을 순위로 보여준다.
-* `sort_desc(avg by (pod_name) (rate(container_cpu_usage_seconds_total{container_name!="POD",pod_name!=""}[1m]))) * 100)`
+* `sort_desc(avg (rate(container_cpu_usage_seconds_total{container_name!="POD",pod_name!=""}[1m]))) by (pod_name) * 100)`
 
 ### 9. Pods Top Memory
 
 * 클러스터 내의 파드별 사용량을 순위로 보여준다.
-* `sort_desc((avg by (pod_name) (container_memory_usage_bytes{id!='/',pod_name!=''}) / 24831234048) *100)`
+* `sort_desc((avg (container_memory_usage_bytes{id!='/',pod_name!=''}) / 24831234048) by (pod_name) *100)`
 * `24831234048` is `sum(machine_memory_bytes)`
 * `sum(machine_memory_bytes)`를 위의 쿼리 안에 넣으면 계산이 안돼서 일단 쿼리 2개 보내서 값을 구하기로 함
-  * 1번째 쿼리 : `(avg by (pod_name) (container_memory_usage_bytes{id!='/',pod_name!=''}))`
+  * 1번째 쿼리 : `(avg (container_memory_usage_bytes{id!='/',pod_name!=''}) by (pod_name))`
   * 2번째 쿼리 : `sum(machine_memory_bytes)`

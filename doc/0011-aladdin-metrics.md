@@ -20,7 +20,7 @@
 
 ### 4. Node Top CPU
 
-* `sort_desc(100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[1m])) * 100))`
+* `sort_desc(100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[1m])) by (instance)  * 100))`
 
 ### 5. Node Top Memory
 
@@ -74,7 +74,7 @@ desired := kube_daemonset_labels
   for item in desired:
   	if item.kube_replicaset_status_replicas == 0 || 		
   				item.kube_replicaset_status_replicas == 
-  							item.kube_replicaset_status_ready_replicas:
+  							item.kube_deployment_status_replicas_available:
   		current++
 ```
 

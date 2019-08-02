@@ -65,21 +65,93 @@ get_installer() {
   debug "Installer command to be used: ${INSTALLER}"
 }
 
+get_status() {
+  get_registry_names
+  check_insecure_registry
+  echo "====================================================================="
+  echo "Version from: ${MAISTRA_ISTIO_OC_COMMAND}"
+  ${MAISTRA_ISTIO_OC_COMMAND} version
+  echo "====================================================================="
+  echo "Version from: ${CRC_OC}"
+  ${CRC_OC} version
+  echo "====================================================================="
+  echo "Console:    https://console-openshift-console.apps-crc.testing"
+  echo "API URL:    https://api.crc.testing:6443/"
+  echo "Image Repo: ${EXTERNAL_IMAGE_REGISTRY} (${INTERNAL_IMAGE_REGISTRY})"
+  echo "oc:      ${CRC_OC}"
+  echo "istiooc: ${MAISTRA_ISTIO_OC_COMMAND}"
+  echo "====================================================================="
+  echo "Make sure you set KUBECONFIG before attempting to access the cluster:"
+  echo "export KUBECONFIG=\"${CRC_KUBECONFIG}\""
+  echo "====================================================================="
+  echo "kubeadmin password:" $(cat ${CRC_KUBEADMIN_PASSWORD_FILE})
+  echo "kiali password: kiali"
+  echo "johndoe password: johndoe"
+  echo "NOTE: for some reason, to oc login as the 'kiali' or 'johndoe' user, you need to unset KUBECONFIG."
+  echo "====================================================================="
+  echo "To push images to the image repo you need to log in."
+  echo "You can use docker or podman, and you can use kubeadmin or kiali user."
+  echo "  oc login -u kubeadmin -p" $(cat ${CRC_KUBEADMIN_PASSWORD_FILE}) "api.crc.testing:6443"
+  echo '  docker login -u kubeadmin -p $(oc whoami -t)' ${EXTERNAL_IMAGE_REGISTRY}
+  echo "or"
+  echo "  oc login -u kiali -p kiali api.crc.testing:6443"
+  echo '  podman login --tls-verify=false -u kiali -p $(oc whoami -t)' ${EXTERNAL_IMAGE_REGISTRY}
+  echo "====================================================================="
+
+  echo "CRC does not yet have a status command. This hack script will be updated once this github issue is implemented: https://github.com/code-ready/crc/issues/68"
+}
+
+check_app() {
+  local expected="$1"
+  apps=$(${MAISTRA_ISTIO_OC_COMMAND} get deployment.apps -n istio-system -o jsonpath='{range .items[*]}{.metadata.name}{" "}{end}' 2> /dev/null)
+  for app in ${apps[@]}
+  do
+	 if [[ "$expected" == "$app" ]]; then
+	   return 0
+	 fi
+  done
+  return 1
+}
+
+get_registry_names() {
+  local ext=$(${MAISTRA_ISTIO_OC_COMMAND} get image.config.openshift.io/cluster -o custom-columns=EXT:.status.externalRegistryHostnames[0] --no-headers 2>/dev/null)
+  local int=$(${MAISTRA_ISTIO_OC_COMMAND} get image.config.openshift.io/cluster -o custom-columns=INT:.status.internalRegistryHostname --no-headers 2>/dev/null)
+  EXTERNAL_IMAGE_REGISTRY=${ext:-<unknown>}
+  INTERNAL_IMAGE_REGISTRY=${int:-<unknown>}
+}
+
+check_insecure_registry() {
+  # make sure docker insecure registry is defined
+  pgrep -a dockerd | grep "[-]-insecure-registry.*${EXTERNAL_IMAGE_REGISTRY}" > /dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    grep "OPTIONS=.*--insecure-registry.*${EXTERNAL_IMAGE_REGISTRY}" /etc/sysconfig/docker > /dev/null 2>&1
+    if [ "$?" != "0" ]; then
+      grep "insecure-registries.*${EXTERNAL_IMAGE_REGISTRY}" /etc/docker/daemon.json > /dev/null 2>&1
+      if [ "$?" != "0" ]; then
+        echo "WARNING: You must tell Docker about the CRC insecure registry (e.g. --insecure-registry ${EXTERNAL_IMAGE_REGISTRY})."
+      else
+        debug "/etc/docker/daemon.json has the insecure-registry setting. This is good."
+      fi
+    else
+      debug "/etc/sysconfig/docker has defined the insecure-registry setting. This is good."
+    fi
+  else
+    debug "Docker daemon is running with --insecure-registry setting. This is good."
+  fi
+}
+
 # Change to the directory where this script is and set our environment
 SCRIPT_ROOT="$( cd "$(dirname "$0")" ; pwd -P )"
 cd ${SCRIPT_ROOT}
 
 # The default version of the crc tool to be downloaded
-DEFAULT_CRC_DOWNLOAD_VERSION="0.86.0"
+DEFAULT_CRC_DOWNLOAD_VERSION="0.87.0"
 
 # The default version of the crc bundle to be downloaded
-DEFAULT_CRC_LIBVIRT_DOWNLOAD_VERSION="4.1.0-rc.5"
+DEFAULT_CRC_LIBVIRT_DOWNLOAD_VERSION="4.1.0"
 
 # The default version of the istiooc command to be downloaded
-DEFAULT_MAISTRA_ISTIO_OC_DOWNLOAD_VERSION="v3.11.0+maistra-0.10.0"
-
-# The default installation custom resource used to define what to install
-DEFAULT_MAISTRA_INSTALL_YAML="https://raw.githubusercontent.com/Maistra/openshift-ansible/maistra-0.10/istio/istio-installation-minimal.yaml"
+DEFAULT_MAISTRA_ISTIO_OC_DOWNLOAD_VERSION="v3.11.0+maistra-0.11.0"
 
 # The default virtual CPUs assigned to the CRC VM
 DEFAULT_CRC_CPUS="5"
@@ -173,8 +245,8 @@ while [[ $# -gt 0 ]]; do
       MAISTRA_ISTIO_OC_DOWNLOAD_VERSION="$2"
       shift;shift
       ;;
-    -ioy|--istiooc-install-yaml)
-      MAISTRA_INSTALL_YAML="$2"
+    -smcp|--maistra-smcp-yaml)
+      MAISTRA_SMCP_YAML="$2"
       shift;shift
       ;;
     -iv|--istio-version)
@@ -265,9 +337,12 @@ Valid options:
       The version of the istiooc binary to use.
       If one does not exist in the bin directory, it will be downloaded there.
       Default: ${DEFAULT_MAISTRA_ISTIO_OC_DOWNLOAD_VERSION}
-  -ioy|--istiooc-install-yaml <file or url>
-      Points to the YAML file that defines the Installation custom resource which declares what to install.
-      Default: ${DEFAULT_MAISTRA_INSTALL_YAML}
+  -smcp|--maistra-smcp-yaml <file or url>
+      Points to the YAML file that defines the ServiceMeshControlPlane custom resource which declares what to install.
+      If not defined, a basic one will be used. Note that if Kiali is enabled in your custom SMCP, you should
+      not pass "-ke true" to this script since that will install multiple Kiali installations which will conflict.
+      Default: Not set (a basic SMCP will be generated by this script)
+      Used only for the 'start' command.
   -iv|--istio-version <version>
       The version of Istio that the istiooc binary will install.
       If this is not specified, this will be whatever the istiooc binary installs by default.
@@ -349,11 +424,10 @@ CRC_DOWNLOAD_PLATFORM="${CRC_DOWNLOAD_PLATFORM:-${DEFAULT_OS_PLATFORM}}"
 CRC_DOWNLOAD_ARCH="${CRC_DOWNLOAD_ARCH:-amd64}"
 CRC_LIBVIRT_DOWNLOAD_VERSION="${CRC_LIBVIRT_DOWNLOAD_VERSION:-${DEFAULT_CRC_LIBVIRT_DOWNLOAD_VERSION}}"
 CRC_ROOT_DIR="${HOME}/.crc"
+CRC_KUBEADMIN_PASSWORD_FILE="${CRC_ROOT_DIR}/cache/crc_libvirt_${CRC_LIBVIRT_DOWNLOAD_VERSION}/kubeadmin-password"
 CRC_KUBECONFIG="${CRC_ROOT_DIR}/cache/crc_libvirt_${CRC_LIBVIRT_DOWNLOAD_VERSION}/kubeconfig"
 CRC_MACHINE_IMAGE="${CRC_ROOT_DIR}/machines/crc/crc"
-
-# Defines where the Installation yaml is to be found.
-MAISTRA_INSTALL_YAML="${MAISTRA_INSTALL_YAML:-${DEFAULT_MAISTRA_INSTALL_YAML}}"
+CRC_OC="${CRC_ROOT_DIR}/cache/oc/oc"
 
 # The version of Maistra
 MAISTRA_VERSION="$(echo -n ${MAISTRA_ISTIO_OC_DOWNLOAD_VERSION} | sed --posix 's/^v.*\+\(.*\)$/\1/')"
@@ -419,7 +493,7 @@ CRC_EXE_NAME=crc
 CRC_EXE_PATH="${OPENSHIFT_BIN_PATH}/${CRC_EXE_NAME}"
 CRC_COMMAND="${CRC_EXE_PATH}"
 
-CRC_LIBVIRT_DOWNLOAD_LOCATION="http://cdk-builds.usersys.redhat.com/builds/crc/${CRC_LIBVIRT_DOWNLOAD_VERSION}/crc_libvirt_${CRC_LIBVIRT_DOWNLOAD_VERSION}.tar.xz"
+CRC_LIBVIRT_DOWNLOAD_LOCATION="http://cdk-builds.usersys.redhat.com/builds/crc/${CRC_LIBVIRT_DOWNLOAD_VERSION}/libvirt/crc_libvirt_${CRC_LIBVIRT_DOWNLOAD_VERSION}.tar.xz"
 CRC_LIBVIRT_PATH="${OPENSHIFT_BIN_PATH}/crc_libvirt_${CRC_LIBVIRT_DOWNLOAD_VERSION}.tar.xz"
 
 # If Kiali is to be installed, set up some things that may be needed
@@ -444,12 +518,14 @@ debug "ENVIRONMENT:
   CRC_DOWNLOAD_VERSION=$CRC_DOWNLOAD_VERSION
   CRC_EXE_NAME=$CRC_EXE_NAME
   CRC_EXE_PATH=$CRC_EXE_PATH
+  CRC_KUBEADMIN_PASSWORD_FILE=$CRC_KUBEADMIN_PASSWORD_FILE
   CRC_KUBECONFIG=$CRC_KUBECONFIG
   CRC_LIBVIRT_DOWNLOAD_LOCATION=$CRC_LIBVIRT_DOWNLOAD_LOCATION
   CRC_LIBVIRT_DOWNLOAD_VERSION=$CRC_LIBVIRT_DOWNLOAD_VERSION
   CRC_LIBVIRT_PATH=$CRC_LIBVIRT_PATH
   CRC_MACHINE_IMAGE=$CRC_MACHINE_IMAGE
   CRC_MEMORY=$CRC_MEMORY
+  CRC_OC=$CRC_OC
   CRC_ROOT_DIR=$CRC_ROOT_DIR
   CRC_VIRTUAL_DISK_SIZE=$CRC_VIRTUAL_DISK_SIZE
   DOCKER_SUDO=$DOCKER_SUDO
@@ -460,7 +536,7 @@ debug "ENVIRONMENT:
   KIALI_PASSPHRASE=$KIALI_PASSPHRASE
   KIALI_USERNAME=$KIALI_USERNAME
   KIALI_VERSION=$KIALI_VERSION
-  MAISTRA_INSTALL_YAML=$MAISTRA_INSTALL_YAML
+  MAISTRA_SMCP_YAML=$MAISTRA_SMCP_YAML
   MAISTRA_ISTIO_OC_COMMAND=$MAISTRA_ISTIO_OC_COMMAND
   MAISTRA_ISTIO_OC_DOWNLOAD_LOCATION=$MAISTRA_ISTIO_OC_DOWNLOAD_LOCATION
   MAISTRA_ISTIO_OC_DOWNLOAD_PLATFORM=$MAISTRA_ISTIO_OC_DOWNLOAD_PLATFORM
@@ -510,7 +586,7 @@ else
   chmod +x ${MAISTRA_ISTIO_OC_EXE_PATH}
 fi
 
-debug "oc command that will be used: ${MAISTRA_ISTIO_OC_COMMAND}"
+debug "istiooc command that will be used: ${MAISTRA_ISTIO_OC_COMMAND}"
 debug "$(${MAISTRA_ISTIO_OC_COMMAND} version)"
 
 # Download the crc tool if we do not have it yet
@@ -615,7 +691,16 @@ if [ "$_CMD" = "start" ]; then
   # See: https://fatmin.com/2016/12/20/how-to-resize-a-qcow2-image-and-filesystem-with-virt-resize/
   # Do this part as the last configuration change since this will require the VM to be stopped.
   debug "Checking the virtual disk size of the VM image..."
-  _CURRENT_VIRTUAL_DISK_SIZE="$(sudo qemu-img info ${CRC_MACHINE_IMAGE} | grep 'virtual size' | sed 's/virtual size: \([0-9]*\)[G].*$/\1/')"
+  _QEMU_IMG_STDOUT="$(sudo qemu-img info ${CRC_MACHINE_IMAGE})"
+  if [ "$?" != "0" ]; then
+    echo "Will attempt to get shared write lock to obtain disk size"
+    _QEMU_IMG_STDOUT="$(sudo qemu-img info -U ${CRC_MACHINE_IMAGE})"
+    if [ "$?" != "0" ]; then
+      echo "Cannnot determine current disk size of VM - will assume there is enough"
+      _QEMU_IMG_STDOUT="virtual size: 9999G (99999999999 bytes)"
+    fi
+  fi
+  _CURRENT_VIRTUAL_DISK_SIZE="$(echo "${_QEMU_IMG_STDOUT}" | grep 'virtual size' | sed 's/virtual size: \([0-9]*\)[G].*$/\1/')"
   if [ "${_CURRENT_VIRTUAL_DISK_SIZE}" -lt "${CRC_VIRTUAL_DISK_SIZE}" ]; then
     _INCREASE_VIRTUAL_DISK_SIZE="+$(expr ${CRC_VIRTUAL_DISK_SIZE} - ${_CURRENT_VIRTUAL_DISK_SIZE})G"
     echo "The virtual disk size is currently ${_CURRENT_VIRTUAL_DISK_SIZE}G."
@@ -713,38 +798,52 @@ EOM
       Yes )
         echo Will assign the cluster-admin role to the kiali user.
         ${MAISTRA_ISTIO_OC_COMMAND} adm policy add-cluster-role-to-user cluster-admin kiali
-        _CREATE_INSTALLATION_RESOURCE="true"
+        _CREATE_SMCP_RESOURCE="true"
         break;;
       No )
         echo Kiali user will not be assigned the cluster-admin role.
-        _CREATE_INSTALLATION_RESOURCE="true" # still try to install Istio, it should work with system:admin logged in
+        _CREATE_SMCP_RESOURCE="true" # still try to install Istio, it should work with system:admin logged in
         break;;
     esac
   done
 
-  ${MAISTRA_ISTIO_OC_COMMAND} get -n istio-operator Installation istio-installation > /dev/null 2>&1
+  # TODO: cannot delete namespaces unless we run this; needed until this is fixed https://github.com/code-ready/crc/issues/268
+  ${MAISTRA_ISTIO_OC_COMMAND} delete apiservice v1beta1.metrics.k8s.io
+
+  # TODO a future version of CRC will do this for us; until then, we have to do it
+  echo "Manually patching image registry operator to expose the internal container repository"
+  ${MAISTRA_ISTIO_OC_COMMAND} patch config.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge
+
+  ${MAISTRA_ISTIO_OC_COMMAND} get -n istio-system ServiceMeshControlPlane > /dev/null 2>&1
   if [ "$?" != "0" ]; then
     if [ "${ISTIO_ENABLED}" == "true" ] ; then
-      if [ "${_CREATE_INSTALLATION_RESOURCE}" == "true" ] ; then
-        echo "Creating Istio Operator Namespace."
+      if [ "${_CREATE_SMCP_RESOURCE}" == "true" ] ; then
+        echo "Creating istio-operator and istio-system namespace."
         ${MAISTRA_ISTIO_OC_COMMAND} create namespace istio-operator
+        ${MAISTRA_ISTIO_OC_COMMAND} create namespace istio-system
         echo "Installing Istio Operator."
         debug ${MAISTRA_ISTIO_OC_COMMAND} create -n istio-operator -f "https://raw.githubusercontent.com/Maistra/istio-operator/${MAISTRA_VERSION}/deploy/maistra-operator.yaml"
         ${MAISTRA_ISTIO_OC_COMMAND} create -n istio-operator -f "https://raw.githubusercontent.com/Maistra/istio-operator/${MAISTRA_VERSION}/deploy/maistra-operator.yaml"
-        echo "Installing Istio via Installation Custom Resource."
-        debug "${MAISTRA_ISTIO_OC_COMMAND} create -n istio-operator -f ${MAISTRA_INSTALL_YAML}"
-        ${MAISTRA_ISTIO_OC_COMMAND} create -n istio-operator -f ${MAISTRA_INSTALL_YAML}
+        echo "Installing Istio via ServiceMeshControlPlane Custom Resource."
+        if [ "${MAISTRA_SMCP_YAML}" != "" ]; then
+          ${MAISTRA_ISTIO_OC_COMMAND} create -n istio-system -f ${MAISTRA_SMCP_YAML}
+        else
+          rm -f /tmp/maistra-smcp.yaml
+          get_downloader
+          eval ${DOWNLOADER} /tmp/maistra-smcp.yaml "https://raw.githubusercontent.com/Maistra/istio-operator/${MAISTRA_VERSION}/deploy/examples/maistra_v1_servicemeshcontrolplane_cr_basic.yaml"
+          cat /tmp/maistra-smcp.yaml | sed -e '1h;2,$H;$!d;g' -e 's/kiali:.*tracing:/kiali:\n      enabled: false\n\n    tracing:/' | ${MAISTRA_ISTIO_OC_COMMAND} create -n istio-system -f -
+        fi
       else
         echo "It appears Istio has not yet been installed - after you have ensured that your OpenShift user has the proper"
         echo "permissions, you will need to install the Maistra operator and then run the following command:"
-        echo "  ${MAISTRA_ISTIO_OC_COMMAND} create -n istio-operator -f ${MAISTRA_INSTALL_YAML}"
+        echo "  ${MAISTRA_ISTIO_OC_COMMAND} create -n istio-system -f ${MAISTRA_SMCP_YAML}"
       fi
     else
-      echo "You asked that Istio not be enabled - will not create the Installation Custom Resource."
+      echo "You asked that Istio not be enabled - will not create the ServiceMeshControlPlane Custom Resource."
     fi
   else
     if [ "${ISTIO_ENABLED}" == "true" ] ; then
-      echo "It appears Istio has already been installed - will not create the Installation Custom Resource again."
+      echo "It appears Istio has already been installed - will not create the ServiceMeshControlPlane Custom Resource again."
     else
       echo "You asked that Istio not be enabled, but it appears Istio has already been installed. You might want to uninstall it."
     fi
@@ -755,14 +854,20 @@ EOM
     if [ "${KIALI_ENABLED}" == "true" -o "${WAIT_FOR_ISTIO}" == "true" ]; then
       echo "Wait for Istio to fully start (this is going to take a while)..."
 
-      echo -n "Waiting for Istio Deployments to be created..."
-      while [ "$(${MAISTRA_ISTIO_OC_COMMAND} get pods -l job-name=openshift-ansible-istio-installer-job -n istio-system -o jsonpath='{.items..status.conditions[0].reason}' 2> /dev/null)" != "PodCompleted" ]
+      echo "Waiting for Istio Deployments to be created."
+      _EXPECTED_APPS=(istio-citadel prometheus jaeger-query jaeger-collector istio-galley istio-policy istio-telemetry istio-pilot istio-egressgateway istio-ingressgateway istio-sidecar-injector grafana)
+      for expected in ${_EXPECTED_APPS[@]}
       do
-         sleep 5
-         echo -n '.'
+        echo -n "Waiting for $expected ..."
+        while ! check_app $expected
+        do
+             sleep 5
+             echo -n '.'
+        done
+        echo "done."
       done
-      echo "done."
 
+      echo "Waiting for Istio Deployments to start..."
       for app in $(${MAISTRA_ISTIO_OC_COMMAND} get deployment.apps -n istio-system -o jsonpath='{range .items[*]}{.metadata.name}{" "}{end}' 2> /dev/null)
       do
          echo -n "Waiting for ${app} to be ready..."
@@ -779,19 +884,17 @@ EOM
   fi
 
   if [ "${KIALI_ENABLED}" == "true" ]; then
-    echo "Deleting any previously existing Kiali..."
-    ${MAISTRA_ISTIO_OC_COMMAND} delete --ignore-not-found=true all,secrets,sa,templates,configmaps,deployments,roles,rolebindings,clusterroles,clusterrolebindings,ingresses,customresourcedefinitions,oauthclients.oauth.openshift.io --selector=app=kiali -n istio-system
     echo "Deploying Kiali..."
     get_downloader
     eval ${DOWNLOADER} /tmp/deploy-kiali-operator.sh https://raw.githubusercontent.com/kiali/kiali/${KIALI_VERSION}/operator/deploy/deploy-kiali-operator.sh
     chmod +x /tmp/deploy-kiali-operator.sh
     OPERATOR_VERSION_LABEL=${KIALI_VERSION} \
     OPERATOR_IMAGE_VERSION=${KIALI_VERSION}  \
-    VERSION_LABEL=${KIALI_VERSION} \
-    IMAGE_VERSION=${KIALI_VERSION}  \
+    KIALI_IMAGE_VERSION=${KIALI_VERSION}  \
     AUTH_STRATEGY=${KIALI_AUTH_STRATEGY}  \
     CREDENTIALS_USERNAME=${KIALI_USERNAME}  \
     CREDENTIALS_PASSPHRASE=${KIALI_PASSPHRASE} \
+    UNINSTALL_EXISTING_OPERATOR="true"
     UNINSTALL_EXISTING_KIALI="true" /tmp/deploy-kiali-operator.sh
   fi
 
@@ -802,9 +905,12 @@ EOM
       ${MAISTRA_ISTIO_OC_COMMAND} delete all,secrets,sa,templates,configmaps,deployments,clusterroles,clusterrolebindings,virtualservices,destinationrules --selector=app=elasticsearch -n istio-system
   fi
 
-  echo "Make sure you set KUBECONFIG before attempting to access the cluster:"
-  echo "export KUBECONFIG=\"${CRC_KUBECONFIG}\""
-  echo "NOTE: for some reason, to oc login as the kiali or johndoe user, you need to unset KUBECONFIG instead."
+  # TODO we can remove this when this is fixed: https://github.com/code-ready/crc/issues/218
+  echo "Working around bug so logs are accessible. See: https://github.com/code-ready/crc/issues/218"
+  ${MAISTRA_ISTIO_OC_COMMAND} adm certificate approve $(${MAISTRA_ISTIO_OC_COMMAND} get csr | egrep ^csr | awk '{ print $1 }')
+
+  # show the status message
+  get_status
 
 elif [ "$_CMD" = "stop" ];then
 
@@ -818,20 +924,7 @@ elif [ "$_CMD" = "delete" ];then
 
 elif [ "$_CMD" = "status" ];then
 
-  ${MAISTRA_ISTIO_OC_COMMAND} version
-
-  echo ""
-  echo "KUBECONFIG should be set via:"
-  echo "export KUBECONFIG='${CRC_KUBECONFIG}'"
-  echo "NOTE: for some reason, to oc login as the kiali or johndoe user, you need to unset KUBECONFIG instead."
-  echo ""
-
-  echo "kubeadmin password:" $(grep "kubeadmin, password: " ${CRC_ROOT_DIR}/crc.log | tail -n 1 | sed 's/^.*password: \(.*\)\"$/\1/')
-  echo "kiali password: kiali"
-  echo "johndoe password: johndoe"
-  echo ""
-
-  echo "CRC does not yet have a status command. This hack script will be updated once this github issue is implemented: https://github.com/code-ready/crc/issues/68"
+  get_status
 
 elif [ "$_CMD" = "ssh" ];then
 
@@ -839,6 +932,6 @@ elif [ "$_CMD" = "ssh" ];then
   ssh -i ${CRC_ROOT_DIR}/cache/crc_libvirt_${CRC_LIBVIRT_DOWNLOAD_VERSION}/id_rsa_crc core@192.168.130.11
 
 else
-  echo "ERROR: Required command must be either: start, stop, delete, status."
+  echo "ERROR: Required command must be either: start, stop, delete, status, ssh"
   exit 1
 fi

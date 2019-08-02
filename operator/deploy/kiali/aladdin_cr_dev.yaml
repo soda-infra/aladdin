@@ -1,0 +1,120 @@
+apiVersion: kiali.io/v1alpha1
+kind: Kiali
+metadata:
+  name: kiali
+annotations:
+  ansible.operator-sdk/reconcile-period: "0s"
+spec:
+##########
+#  ---
+  auth:
+# Options are "login", "anonymous", "openshift".
+    strategy: "login"
+
+##########
+#  ---
+  deployment:
+    image_name: "kiali/kiali" # image_name will be replace "soda2019/aladdin"
+    image_pull_policy: "IfNotPresent"
+    image_version: "dev"
+#    ingress_enabled: true
+#    namespace: "istio-system"
+#    secret_name: "kiali"
+#    service_type: "NodePort"
+#
+# Determines which priority levels of log messages Kiali will output.
+# Typical values are "3" for INFO and higher priority, "4" for DEBUG and higher priority.
+#    ---
+#    verbose_mode: "3"
+#
+# When true, Kiali will be in "view only" mode, allowing the user to view and retrieve
+# management and monitoring data for the service mesh, but not allow the user to
+# modify the service mesh.
+#    ---
+#    view_only_mode: false
+
+##########
+#  ---
+#  external_services:
+#    ---
+#    grafana:
+#      auth:
+#        ca_file: ""
+#        insecure_skip_verify: false
+#        password: ""
+#        token: ""
+#        type: "none"
+#        use_kiali_token: false
+#        username: ""
+#      display_link: true
+#      in_cluster_url: "http://grafana.istio-system:3000"
+#      url: ""
+#    ---
+#    istio:
+#      istio_identity_domain: "svc.cluster.local"
+#      istio_sidecar_annotation: "sidecar.istio.io/status"
+#      url_service_version: ""
+#    ---
+#    prometheus:
+#      auth:
+#        ca_file: ""
+#        insecure_skip_verify: false
+#        password: ""
+#        token: ""
+#        type: "none"
+#        use_kiali_token: false
+#        username: ""
+#      custom_metrics_url: ""
+#      url: ""
+#    ---
+#    tracing:
+#      auth:
+#        ca_file: ""
+#        insecure_skip_verify: false
+#        password: ""
+#        token: ""
+#        type: "none"
+#        use_kiali_token: false
+#        username: ""
+#      enabled: true
+#      namespace: ""
+#      service : ""
+#      url: ""
+
+##########
+#  ---
+#  server:
+#
+# Where the Kiali server is bound. The console and API server are accessible on this host.
+#    ---
+#    address: ""
+#
+# When true, allows additional audit logging on write operations.
+#    ---
+#    audit_log: true
+#
+# When true, allows the web console to send requests to other domains other than where the console came from.
+# Typically used for development environments only.
+#    ---
+#    cors_allow_all: false
+#
+# When true, the metrics endpoint will be available for Prometheus to scrape.
+#    ---
+#    metrics_enabled: true
+#
+# The port that the server will bind to in order to receive metric requests.
+# This is the port Prometheus will need to scrape when collecting metrics from Kiali.
+#    ---
+#    metrics_port: 9090
+#
+# The port that the server will bind to in order to receive console and API requests.
+#    ---
+#    port: 20001
+#
+# Defines the context root path for the Kiali console and API endpoints and readiness probes.
+# When providing a context root path that is not "/", do not add a trailing slash.
+# For example, use "/kiali" not "/kiali/".
+# When empty, will default to "/" on OpenShift and "/kiali" on Kubernetes.
+#    ---
+#    web_root: ""
+

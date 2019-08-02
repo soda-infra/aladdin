@@ -5,4 +5,5 @@ type GrafanaInfo struct {
 	URL                   string `json:"url"`
 	ServiceDashboardPath  string `json:"serviceDashboardPath"`
 	WorkloadDashboardPath string `json:"workloadDashboardPath"`
+	MeshDashboardPath     string `json:"meshDashboardPath"`
 }

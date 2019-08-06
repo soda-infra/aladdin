@@ -11,7 +11,7 @@
 * Current Nodes: `sum(kube_node_status_condition{condition="Ready", status="true"})`
 
   ```
-  /api/infra?filters[]=node_status_condition&contion=Ready&status=true
+  /api/infra?filters[]=node_status_condition&condition=Ready&status=true
   ```
 
   

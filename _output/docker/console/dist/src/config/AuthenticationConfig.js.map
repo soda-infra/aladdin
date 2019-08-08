@@ -1,0 +1,1 @@
+{"version":3,"file":"AuthenticationConfig.js","sourceRoot":"","sources":["../../../../src/config/AuthenticationConfig.ts"],"names":[],"mappings":"AAAA,OAAO,EAAc,YAAY,EAAE,MAAM,eAAe,CAAC;AAEzD,IAAM,oBAAoB,GAAe;IACvC,QAAQ,EAAE,YAAY,CAAC,KAAK;IAC5B,aAAa,EAAE,KAAK;CACrB,CAAC;AAEF,eAAe,oBAAoB,CAAC"}

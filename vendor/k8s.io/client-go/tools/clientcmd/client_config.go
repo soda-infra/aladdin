@@ -541,7 +541,6 @@ func (config *inClusterClientConfig) Possible() bool {
 		os.Getenv("KUBERNETES_SERVICE_PORT") != "" &&
 		err == nil && !fi.IsDir()
 }
-
 // BuildConfigFromFlags is a helper function that builds configs from a master
 // url or a kubeconfig filepath. These are passed in as command line flags for cluster
 // components. Warnings should reflect this usage. If neither masterUrl or kubeconfigPath

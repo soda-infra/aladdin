@@ -131,6 +131,131 @@
         }
       }
     },
+    "/infra": {
+      "get": {
+        "description": "Endpoint to get the infra Metrics by NodeExporter, cAdvisor, KubeStateMetrics",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "operationId": "InfraDashboard",
+        "parameters": [
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "Prometheus function used to calculate rate: 'rate' or 'irate'.",
+            "name": "rateFunc",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "1m",
+            "x-go-name": "Name",
+            "description": "Interval used for rate calculation.",
+            "name": "rateInterval",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "x-go-name": "Name",
+            "description": "Flag for fetching histogram average. Default is false.",
+            "name": "avg",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "x-go-name": "Name",
+            "description": "List of labels to use for grouping metrics (via Prometheus 'by' clause).",
+            "name": "byLabels[]",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "x-go-name": "Name",
+            "description": "List of metrics to fetch. Fetch all metrics when empty. List entries are Infra internal metric names.",
+            "name": "filters[]",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "kube condition: 'Ready' or 'DiskPressure' or 'MemoryPressure' or 'PIDPressure'.",
+            "name": "condition",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "kube status: 'true' or 'false' or 'unknown'.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "kube phase: 'Active' or 'Terminating'.",
+            "name": "phase",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "kube mode: 'idel' or 'iowait' or 'irq' or 'nice' or 'softirq' or 'steal' or 'system' or 'user'.",
+            "name": "mode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "kube id",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "kube containerName: label values for container_name.",
+            "name": "containerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "default": "",
+            "x-go-name": "Name",
+            "description": "kube podName: label values for pod_name.",
+            "name": "podName",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/statusInfo"
+          },
+          "500": {
+            "$ref": "#/responses/internalError"
+          }
+        }
+      }
+    },
     "/grafana": {
       "get": {
         "description": "Get the grafana URL and other descriptors",

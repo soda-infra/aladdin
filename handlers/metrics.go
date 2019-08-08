@@ -100,6 +100,7 @@ func extractBaseMetricsQueryParams(queryParams url.Values, q *prometheus.BaseMet
 			return errors.New("bad request, cannot parse query parameter 'avg'")
 		}
 	}
+
 	if lbls, ok := queryParams["byLabels[]"]; ok && len(lbls) > 0 {
 		q.ByLabels = lbls
 	}

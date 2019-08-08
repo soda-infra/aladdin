@@ -4,7 +4,7 @@ SHELL := /bin/bash
 OPERATOR_IMAGE_REPO ?= quay.io
 OPERATOR_IMAGE_NAME ?= ${OPERATOR_IMAGE_REPO}/kiali/kiali-operator
 OPERATOR_IMAGE_PULL_POLICY ?= IfNotPresent
-OPERATOR_IMAGE_VERSION ?= dev
+OPERATOR_IMAGE_VERSION ?= latest
 OPERATOR_NAMESPACE ?= kiali-operator
 OPERATOR_WATCH_NAMESPACE ?= kiali-operator
 
@@ -13,16 +13,17 @@ OPERATOR_INSTALL_KIALI ?= false
 
 # When installing Kiali, here are some configuration settings for it.
 AUTH_STRATEGY ?= openshift
+#AUTH_STRATECY ?= anonymous
 CREDENTIALS_USERNAME ?= admin
 CREDENTIALS_PASSPHRASE ?= admin
+#KIALI_IMAGE_REPO ?= quay.io
+#KIALI_IMAGE_NAME ?= ${KIALI_IMAGE_REPO}/kiali/kiali
 KIALI_IMAGE_NAME ?= soda2019/aladdin
 KIALI_IMAGE_PULL_POLICY ?= IfNotPresent
-KIALI_IMAGE_VERSION ?= dev
+KIALI_IMAGE_VERSION ?= jungeun
 NAMESPACE ?= istio-system
 VERBOSE_MODE ?= 3
 SERVICE_TYPE ?= NodePort
-KIALI_IMAGE_NAME ?= soda2019/aladdin
-KIALI_IMAGE_PULL_POLICY ?= IfNotPresent
 
 # Find the client executable (either istiooc or oc or kubectl)
 OC ?= $(shell which istiooc 2>/dev/null || which oc 2>/dev/null || which kubectl 2>/dev/null || echo "MISSING-OC/KUBECTL-FROM-PATH")
@@ -130,19 +131,16 @@ kiali-create: secret-create
 else
 kiali-create:
 endif
-# 	@echo Deploy Kiali using the settings found in deploy/kiali/kiali_cr_dev.yaml
-# 	cat deploy/kiali/kiali_cr_dev.yaml | \
-# AUTH_STRATEGY="${AUTH_STRATEGY}" \
-# KIALI_IMAGE_NAME=${KIALI_IMAGE_NAME} \
-# KIALI_IMAGE_PULL_POLICY=${KIALI_IMAGE_PULL_POLICY} \
-# KIALI_IMAGE_VERSION=${KIALI_IMAGE_VERSION} \
-# NAMESPACE="${NAMESPACE}" \
-# VERBOSE_MODE="${VERBOSE_MODE}" \
-# SERVICE_TYPE="${SERVICE_TYPE}" \
-# envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
-	@echo Deploy Kiali using the settings found in deploy/kiali/aladdin_cr.yaml
-	cat deploy/kiali/aladdin_cr.yaml | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
-
+	@echo Deploy Kiali using the settings found in deploy/kiali/kiali_cr_dev.yaml
+	cat deploy/kiali/kiali_cr_dev.yaml | \
+AUTH_STRATEGY="${AUTH_STRATEGY}" \
+KIALI_IMAGE_NAME=${KIALI_IMAGE_NAME} \
+KIALI_IMAGE_PULL_POLICY=${KIALI_IMAGE_PULL_POLICY} \
+KIALI_IMAGE_VERSION=${KIALI_IMAGE_VERSION} \
+NAMESPACE="${NAMESPACE}" \
+VERBOSE_MODE="${VERBOSE_MODE}" \
+SERVICE_TYPE="${SERVICE_TYPE}" \
+envsubst | ${OC} apply -n "${OPERATOR_WATCH_NAMESPACE}" -f -
 
 ## kiali-delete: Remove a Kiali CR from the cluster, informing the Kiali operator to uninstall Kiali.
 kiali-delete: secret-delete

@@ -13,6 +13,7 @@ import (
 
 	"github.com/kiali/kiali/business"
 	"github.com/kiali/kiali/prometheus"
+	// "github.com/kiali/kiali/log"
 )
 
 // WorkloadList is the API handler to fetch all the workloads to be displayed, related to a single namespace
@@ -76,12 +77,15 @@ func getWorkloadMetrics(w http.ResponseWriter, r *http.Request, promSupplier pro
 	workload := vars["workload"]
 
 	prom, namespaceInfo := initClientsForMetrics(w, r, promSupplier, namespace)
+	// log.Infof("Workvalue111 ::: %v\n", prom)
+	// log.Infof("Workvalue222 ::: %v\n", namespaceInfo)
 	if prom == nil {
 		// any returned value nil means error & response already written
 		return
 	}
 
 	params := prometheus.IstioMetricsQuery{Namespace: namespace, Workload: workload}
+	// log.Infof("Workvalue333 ::: %v\n", params)
 	err := extractIstioMetricsQueryParams(r, &params, namespaceInfo)
 	if err != nil {
 		RespondWithError(w, http.StatusBadRequest, err.Error())
@@ -89,6 +93,8 @@ func getWorkloadMetrics(w http.ResponseWriter, r *http.Request, promSupplier pro
 	}
 
 	metrics := prom.GetMetrics(&params)
+	// log.Infof("Workvalue444 ::: %v\n", params)
+	// log.Infof("Workvalue555 ::: %v\n", metrics)
 	RespondWithJSON(w, http.StatusOK, metrics)
 }
 

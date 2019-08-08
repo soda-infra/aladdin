@@ -26,6 +26,8 @@ type ClientInterface interface {
 	GetConfiguration() (prom_v1.ConfigResult, error)
 	GetFlags() (prom_v1.FlagsResult, error)
 	GetMetrics(query *IstioMetricsQuery) Metrics
+	// aladdin
+	GetInfraMetrics(query *InfraOptionMetricsQuery) InfraMetrics
 	GetNamespaceServicesRequestRates(namespace, ratesInterval string, queryTime time.Time) (model.Vector, error)
 	GetServiceRequestRates(namespace, service, ratesInterval string, queryTime time.Time) (model.Vector, error)
 	GetWorkloadRequestRates(namespace, workload, ratesInterval string, queryTime time.Time) (model.Vector, model.Vector, error)
@@ -81,6 +83,11 @@ func (in *Client) Inject(api prom_v1.API) {
 // GetMetrics returns the Metrics related to the provided query options.
 func (in *Client) GetMetrics(query *IstioMetricsQuery) Metrics {
 	return getMetrics(in.api, query)
+}
+
+// aladdin
+func (in *Client) GetInfraMetrics(query *InfraOptionMetricsQuery) InfraMetrics {
+	return getInfraMetrics(in.api, query)
 }
 
 // GetAllRequestRates queries Prometheus to fetch request counter rates, over a time interval, for requests

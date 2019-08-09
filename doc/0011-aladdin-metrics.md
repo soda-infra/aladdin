@@ -232,7 +232,7 @@ for item in desired:
 
 ### 7. Cluster Pod Utilization
 
-* Pod Usage(%): ````(Used / Total) * 100```
+* Pod Usage(%): ```(Used / Total) * 100```
 
 * Used: `sum(kube_pod_status_phase{phase="Running"})`
 

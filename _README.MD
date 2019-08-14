@@ -10,9 +10,9 @@
 
 #### 전제조건
 
-Kubernetes 1.15.0
+* Kubernetes 1.15.0
 
-Istio 1.20.0 (Prometheus 포함)
+* Istio 1.20.0 (Prometheus 포함)
 
 위 프로그램은 알라딘을 구동하는데 필수적으로 필요한 구성요소입니다.
 

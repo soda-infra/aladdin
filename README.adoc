@@ -16,17 +16,17 @@ Istio (including Prometheus)
     git install https://github.com/soda-infra/aladdin-requirements
     helm install aladdin-requirements --name aladdin-requirements
 
-###### Building the Container Image
+#### Building the Container Image
 
     cd ${GOPATH}/src/github.com/soda-infra/aladdin
     make docker-build
     
-###### Deploying Aladdin to Kubernetes
+#### Deploying Aladdin to Kubernetes
 
     cd ${GOPATH}/src/github.com/soda-infra/aladdin/operator
     make kiali-create
 
-###### Removing Aladdin from Kubernetes
+#### Removing Aladdin from Kubernetes
 
     cd ${GOPATH}/src/github.com/soda-infra/aladdin/operator
     make kiali-delete

@@ -11,9 +11,9 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
 
 #### pre-requisite
 
-Kubernetes 1.15.0
+* Kubernetes 1.15.0
 
-Istio 1.20.0 (Including Prometheus)
+* Istio 1.20.0 (Including Prometheus)
 
 #### Install requirements
 

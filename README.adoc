@@ -3,13 +3,11 @@
 
 ### Introduction
 
-***
 
 Aladdin provide Network Visualization & Kubernetes Monitoring
 
 ### Getting Started
 
-***
 
 #### pre-requisite
 
@@ -42,6 +40,5 @@ Install Prometheus exporters (node-exporter, kube-state-metrics)
 
 ### License
 
-***
 
 Apache License 2.0

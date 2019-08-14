@@ -1,10 +1,16 @@
 # Aladdin 
 
+***
+
 ### Introduction
+
+***
 
 Aladdin provide Network Visualization & Kubernetes Monitoring
 
 ### Getting Started
+
+***
 
 #### pre-requisite
 
@@ -12,6 +18,8 @@ Kubernetes 1.15.x
 Istio (including Prometheus)
 
 #### Install requirements
+
+Install Prometheus exporters (node-exporter, kube-state-metrics)
 
     git install https://github.com/soda-infra/aladdin-requirements
     helm install aladdin-requirements --name aladdin-requirements
@@ -34,5 +42,7 @@ Istio (including Prometheus)
 
 
 ### License
+
+***
 
 Apache License 2.0

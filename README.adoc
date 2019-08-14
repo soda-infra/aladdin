@@ -6,7 +6,7 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
 
 ### Getting Started
 
-##### pre-requisite
+#### pre-requisite
 
 Kubernetes 1.15.x
 Istio (including Prometheus)
@@ -15,9 +15,6 @@ Istio (including Prometheus)
 
     git install https://github.com/soda-infra/aladdin-requirements
     helm install aladdin-requirements --name aladdin-requirements
-
-#### Setting up Kubernetes
-
 
 ###### Building the Container Image
 

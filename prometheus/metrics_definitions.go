@@ -70,13 +70,33 @@ var infraMetrics = []infraMetric{
 		isLabel: true,
 	},
 	infraMetric{
+		aladdinName: "daemonset_created",
+		istioName: "kube_daemonset_created",
+		isLabel: true,
+	},
+	infraMetric{
 		aladdinName: "daemonset_unavailable",
 		istioName: "kube_daemonset_status_number_unavailable",
 		isLabel: true,
 	},
 	infraMetric{
+		aladdinName: "daemonset_status_current_number_scheduled",
+		istioName: "kube_daemonset_status_current_number_scheduled",
+		isLabel: true,
+	},
+	infraMetric{
+		aladdinName: "daemonset_status_desired_number_scheduled",
+		istioName: "kube_daemonset_status_desired_number_scheduled",
+		isLabel: true,
+	},
+	infraMetric{
 		aladdinName: "deployment_labels",
 		istioName: "kube_deployment_labels",
+		isLabel: true,
+	},
+	infraMetric{
+		aladdinName: "deployment_created",
+		istioName: "kube_deployment_created",
 		isLabel: true,
 	},
 	infraMetric{
@@ -95,8 +115,18 @@ var infraMetrics = []infraMetric{
 		isLabel: true,
 	},
 	infraMetric{
+		aladdinName: "replicaset_created",
+		istioName: "kube_replicaset_created",
+		isLabel: true,
+	},
+	infraMetric{
 		aladdinName: "replicaset_status_replicas",
 		istioName: "kube_replicaset_status_replicas",
+		isLabel: true,
+	},
+	infraMetric{
+		aladdinName: "replicaset_status_ready_replicas",
+		istioName: "kube_replicaset_status_ready_replicas",
 		isLabel: true,
 	},
 	infraMetric{
@@ -110,6 +140,11 @@ var infraMetrics = []infraMetric{
 		isLabel: true,
 	},
 	infraMetric{
+		aladdinName: "pod_created",
+		istioName: "kube_pod_created",
+		isLabel: true,
+	},
+	infraMetric{
 		aladdinName: "pod_status_phase",
 		istioName: "kube_pod_status_phase",
 		isLabel: true,
@@ -120,6 +155,11 @@ var infraMetrics = []infraMetric{
 		isLabel: true,
 	},
 	infraMetric{
+		aladdinName: "node_created",
+		istioName: "kube_node_created",
+		isLabel: true,
+	},
+	infraMetric{
 		aladdinName: "node_status_condition",
 		istioName: "kube_node_status_condition",
 		isLabel: true,
@@ -127,6 +167,11 @@ var infraMetrics = []infraMetric{
 	infraMetric{
 		aladdinName: "namespace_labels",
 		istioName: "kube_namespace_labels",
+		isLabel: true,
+	},
+	infraMetric{
+		aladdinName: "namespace_created",
+		istioName: "kube_namespace_created",
 		isLabel: true,
 	},
 	infraMetric{
@@ -165,6 +210,11 @@ var infraMetrics = []infraMetric{
 		isLabel: true,
 	},
 	infraMetric{
+		aladdinName: "pod_info",
+		istioName: "kube_pod_info",
+		isLabel: true,
+	},
+	infraMetric{
 		aladdinName: "node_cpu_seconds_total",
 		istioName: "node_cpu_seconds_total",
 		isLabel: true,
@@ -187,6 +237,11 @@ var infraMetrics = []infraMetric{
 	infraMetric{
 		aladdinName: "node_memory_MemTotal_bytes",
 		istioName: "node_memory_MemTotal_bytes",
+		isLabel: true,
+	},
+	infraMetric{
+		aladdinName: "node_annotations",
+		istioName: "kube_node_annotations",
 		isLabel: true,
 	},
 }

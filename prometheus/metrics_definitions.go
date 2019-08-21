@@ -54,7 +54,7 @@ func (in *istioMetric) labelsToUse(labels, labelsError string) string {
 	return labels
 }
 
-// aladdin
+
 type infraMetric struct {
 	aladdinName      string
 	istioName      string
@@ -62,7 +62,7 @@ type infraMetric struct {
 	isLabel				 bool
 }
 
-// aladdin
+
 var infraMetrics = []infraMetric{
 	infraMetric{
 		aladdinName: "daemonset_labels",
@@ -246,7 +246,7 @@ var infraMetrics = []infraMetric{
 	},
 }
 
-// aladdin
+
 func (in *infraMetric) labelsToUse(labels, labelsError string) string {
 	if in.useErrorLabels {
 		return labelsError

@@ -73,43 +73,6 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
     kubectl get svc -A
 
 
-
-
-
-
-
-# Development Environment
-
-#### pre-requisite
-
-* Kubernetes 1.15.0
-
-* Istio 1.20.0 (Including Prometheus)
-
-#### Install requirements
-
-Install Prometheus exporters (node-exporter, kube-state-metrics)
-
-    git install https://github.com/soda-infra/aladdin-requirements
-    helm install aladdin-requirements --name aladdin-requirements
-
-#### Building the Container Image
-
-    cd ${GOPATH}/src/github.com/soda-infra/aladdin
-    make docker-build
-    
-#### Deploying Aladdin to Kubernetes
-
-    cd ${GOPATH}/src/github.com/soda-infra/aladdin/operator
-    make kiali-create
-
-#### Removing Aladdin from Kubernetes
-
-    cd ${GOPATH}/src/github.com/soda-infra/aladdin/operator
-    make kiali-delete
-
-
-
 ### License
 
 

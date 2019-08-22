@@ -71,6 +71,15 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
     
     # check kiali port (kiali 포트로 접속)
     kubectl get svc -A
+    
+    # make traffic
+    cat >> ~/makeTraffic.sh <<EOF
+    for ((i=1;i<=10000000;i++)); do
+        curl -v --header "Connection: keep-alive" "http://127.0.0.1:31380/productpage";
+        sleep 5;
+    done
+    EOF 
+    sudo chmod +x makeTraffic.sh
 
 
 ### License

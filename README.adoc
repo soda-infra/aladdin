@@ -8,7 +8,15 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
 
 ### Getting Started
 
-    # install istio
+    # install helm
+    curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > install-helm.sh
+    chmod u+x install-helm.sh
+    ./install-helm.sh
+    kubectl -n kube-system create serviceaccount tiller
+    kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+    helm init --service-account tiller
+
+    # download istio
     git clone https://github.com/soda-infra/istio
     cd istio
     git checkout release-1.2
@@ -34,6 +42,7 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
       passphrase: YWRtaW4=
     EOF
     
+    # install istio
     helm install install/kubernetes/helm/istio \
     --name istio \
     --namespace istio-system \
@@ -42,6 +51,10 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
     --set grafana.enabled=true \
     --set kiali.enabled=true \
     --set servicegraph.enabled=true
+    
+    # install aladdin-requirements
+    git clone https://github.com/soda-infra/aladdin-requirements
+    helm install aladdin-requirements --name aladdin-requirements
     
     # loading istio example
     kubectl label namespace default istio-injection=enabled

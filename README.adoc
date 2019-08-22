@@ -9,7 +9,7 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
 ### Getting Started
 
     # install istio
-    git install https://github.com/soda-infra/istio
+    git clone https://github.com/soda-infra/istio
     cd istio
     git checkout release-1.2
     helm install install/kubernetes/helm/istio-init --name istio-init --namespace istio-system

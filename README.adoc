@@ -28,7 +28,7 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
     kubectl get crds | grep 'istio.io\|certmanager.k8s.io' | wc -l
     
     # kiali secret 생성 (username: admin, password: admin)
-        cat <<EOF | kubectl apply -f -
+    cat <<EOF | kubectl apply -f -
     apiVersion: v1
     kind: Secret
     metadata:

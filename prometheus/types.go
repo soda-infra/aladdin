@@ -47,19 +47,50 @@ func (q *IstioMetricsQuery) FillDefaults() {
 	q.Direction = "outbound"
 }
 
-// CustomMetricsQuery holds query parameters for a custom metrics query
-type CustomMetricsQuery struct {
-	BaseMetricsQuery
-	Namespace         string
-	App               string
-	Version           string
-	RawDataAggregator string
+// aladdin: 인프라 쿼리를 위해(함수정보)
+// InfraMetricsQuery holds common parameters for all kinds of queries
+type InfraMetricsQuery struct {
+	prom_v1.Range
+	RateInterval string
+	RateFunc     string
+	Avg          bool
+	ByLabels     []string
 }
 
+// aladdin: InfraMetricsQuery의 default
 // FillDefaults fills the struct with default parameters
-func (q *CustomMetricsQuery) FillDefaults() {
-	q.BaseMetricsQuery.fillDefaults()
-	q.RawDataAggregator = "sum"
+func (q *InfraMetricsQuery) fillDefaults() {
+	q.End = time.Now()
+	q.Start = q.End.Add(-30 * time.Minute)
+	q.Step = 15 * time.Second
+	q.RateInterval = "1m"
+	q.Avg = false
+}
+
+// aladdin: 인프라 쿼리를 위해(필터링정보)
+// InfraOptionMetricsQuery holds query parameters for a infra metrics query
+type InfraOptionMetricsQuery struct {
+	InfraMetricsQuery
+	Filters         []string
+	Condition		string
+	Status			string
+	Phase			string
+	Mode 			string
+	Id 				string
+	ContainerName	string
+	PodName			string
+}
+
+// aladdin: InfraOptionMetricsQuery default
+// FillDefaults fills the struct with default parameters
+func (q *InfraOptionMetricsQuery) FillDefaults() {
+	q.InfraMetricsQuery.fillDefaults()
+}
+
+// aladdin
+// Metrics contains all simple metrics
+type InfraMetrics struct {
+	Metrics    map[string]*Metric   `json:"metrics"`
 }
 
 // Metrics contains all simple metrics and histograms data

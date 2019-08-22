@@ -1,0 +1,1 @@
+{"version":3,"file":"IstioConfigDetails.js","sourceRoot":"","sources":["../../../../src/types/IstioConfigDetails.ts"],"names":[],"mappings":"AAmDA,MAAM,CAAC,IAAM,UAAU,GAAe;IACpC,eAAe,EAAE,KAAK;IACtB,wBAAwB,EAAE,IAAI;CAC/B,CAAC;AAEF,MAAM,CAAC,IAAM,eAAe,GAAG;IAC7B,MAAM,EAAE;QACN,QAAQ,EAAE,WAAW,CAAC,iBAAiB;KACxC;CACF,CAAC"}

@@ -59,6 +59,7 @@ type SamplePair struct {
 }
 
 // MarshalJSON implements json.Marshaler.
+//go 언어 자료형을 json 텍스트로 변환 
 func (s SamplePair) MarshalJSON() ([]byte, error) {
 	return pmod.SamplePair{
 		Timestamp: pmod.Time(s.Timestamp),

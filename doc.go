@@ -13,7 +13,7 @@ import (
 // SWAGGER PARAMETERS - GENERAL
 // - keep this alphabetized
 /////////////////////
-
+// TODO
 // swagger:parameters appMetrics appDetails graphApp graphAppVersion appDashboard
 type AppParam struct {
 	// The app name (label value).

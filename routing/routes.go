@@ -178,6 +178,27 @@ func NewRoutes() (r *Routes) {
 			handlers.Config,
 			true,
 		},
+		// swagger:route GET /infra 
+		// ---
+		// Endpoint to get the infra information
+		//
+		//     Produces:
+		//     - application/json
+		//
+		//     Schemes: http, https
+		//
+		// responses:
+		//      400: badRequestError
+		//      503: serviceUnavailableError
+		//      200: metricsResponse
+		// aladdin: swagger.json파일과 함께 고침. request가 route되는 부분. handlers.InfraDashboard로 route됨
+		{
+			"InfraDashboard",
+			"GET",
+			"/api/infra",
+			handlers.InfraDashboard,
+			true,
+		},
 		// swagger:route GET /namespaces/{namespace}/istio config istioConfigList
 		// ---
 		// Endpoint to get the list of Istio Config of a namespace

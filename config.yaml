@@ -4,31 +4,36 @@ server:
 
   # Web context path to serve Kiali API and frontend from.
   # Default is /
-  # web_root: /kiali
+  # web_root: /source/kiali/kiali/src/github.com/kiali/kiali/_output/docker
+  env:
+  - name: KUBERNETES_SERVICE_HOST
+    value: "kubernetes.default.svc.cluster.local"
+  - name: KUBERNETES_SERVICE_PORT
+    value: "443"
 
   # Uncomment static_content_root_directory to set up a different directory for static front-end content.
   # Default is /opt/kiali/console
   # static_content_root_directory: /static-files
-
+  static_content_root_directory: /source/kiali/kiali/src/github.com/kiali/kiali/_output/docker/console
   # Uncomment cors_allow_all to allow serving front-end from a different host (mainly for development)
   # Default is false
   # cors_allow_all: true
 external_services:
-  prometheus_service_url: http://prometheus-istio-system.127.0.0.1.nip.io
+  prometheus_service_url: http://10.105.32.17:9090
   # Uncomment istio_identity_domain to set a different value. This value must match the Istio configuration.
   # Default is "svc.cluster.local" (which matches Istio's default)
   # istio_identity_domain: svc.cluster.local
   jaeger:
-    url: http://jaeger-query-istio-system.127.0.0.1.nip.io
+    url: http://10.100.33.106:16686
   grafana:
-    url: http://grafana-istio-system.127.0.0.1.nip.io
+    url: http://10.98.209.29:3000
   # Uncomment grafana_service_url, used to generate links to Grafana
   # If unset, the Grafana service URL will be looked up from Kubernetes Grafana service. It may not always be available.
   # grafana_service_url: http://grafana-istio-system.127.0.0.1.nip.io
 
 # Uncomment in_cluster to set a different value.
 # Default is true (which matches Kiali default configuration to run inside a pod running on kubernetes)
-# in_cluster: true
+in_cluster: true
 
 # Uncomment to use another istio labels
 #istio_labels:

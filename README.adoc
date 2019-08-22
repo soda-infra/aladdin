@@ -12,10 +12,28 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
     git clone https://github.com/soda-infra/istio
     cd istio
     git checkout release-1.2
-    helm install install/kubernetes/helm/istio-init --name istio-init --namespace istio-system
     
+    # install istio-init
+    helm install install/kubernetes/helm/istio-init --name istio-init --namespace istio-system
+   
     # verify istio-init (아래 명령 결과가 23이 나오면 완료)
     kubectl get crds | grep 'istio.io\|certmanager.k8s.io' | wc -l
+    
+    # kiali secret 생성 (username: admin, password: admin)
+        cat <<EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: kiali
+      namespace: istio-system
+      labels:
+        app: kiali
+    type: Opaque
+    data:
+      username: YWRtaW4=
+      passphrase: YWRtaW4=
+    EOF
+    
     helm install install/kubernetes/helm/istio \
     --name istio \
     --namespace istio-system \
@@ -37,6 +55,9 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
     
     # verify
     curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
+    
+    # check kiali port (kiali 포트로 접속)
+    kubectl get svc -A
 
 
 

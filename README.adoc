@@ -8,6 +8,43 @@ Aladdin provide Network Visualization & Kubernetes Monitoring
 
 ### Getting Started
 
+    # install istio
+    git install https://github.com/soda-infra/istio
+    cd istio
+    git checkout release-1.2
+    helm install install/kubernetes/helm/istio-init --name istio-init --namespace istio-system
+    
+    # verify istio-init (아래 명령 결과가 23이 나오면 완료)
+    kubectl get crds | grep 'istio.io\|certmanager.k8s.io' | wc -l
+    helm install install/kubernetes/helm/istio \
+    --name istio \
+    --namespace istio-system \
+    --set tracing.enabled=true \
+    --set global.mtls.enabled=true \
+    --set grafana.enabled=true \
+    --set kiali.enabled=true \
+    --set servicegraph.enabled=true
+    
+    # loading istio example
+    kubectl label namespace default istio-injection=enabled
+    kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+    kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+    export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+    export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
+    export INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -o jsonpath='{.items[0].status.hostIP}')
+    export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+    kubectl apply -f samples/bookinfo/networking/destination-rule-all-mtls.yaml
+    
+    # verify
+    curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
+
+
+
+
+
+
+
+# Development Environment
 
 #### pre-requisite
 

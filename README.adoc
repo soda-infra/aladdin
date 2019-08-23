@@ -5,8 +5,8 @@
 
 
 Aladdin provide Network Visualization & Kubernetes Monitoring
-:imagedir: img
-image::{imagedir}/aladdin-infrastructure.png[Aladdin Infrastructure, width=800]
+:imagedir: ./img
+image::{imagedir}/aladdin-infrastructure.png
 
 ### Getting Started
 

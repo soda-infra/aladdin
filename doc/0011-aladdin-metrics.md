@@ -11,7 +11,7 @@
 * Current Nodes: `sum(kube_node_status_condition{condition="Ready", status="true"})`
 
   ```
-  /api/infra?filters[]=node_status_condition&condition=Ready&status=true
+  /api/infra?filters[]=node_status_condition&contion=Ready&status=true
   ```
 
   
@@ -232,7 +232,7 @@ for item in desired:
 
 ### 7. Cluster Pod Utilization
 
-* Pod Usage(%): ```(Used / Total) * 100```
+* Pod Usage(%): ````(Used / Total) * 100```
 
 * Used: `sum(kube_pod_status_phase{phase="Running"})`
 

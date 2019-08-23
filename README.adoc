@@ -5,7 +5,7 @@
 2. <<Getting Started>>
 3. <<Platform Version in Aladdin>>
 4. <<Wiki for Aladdin>>
-5. <<Aladdin Live Demo>>
+5. <<:boom: Aladdin Live Demo>>
 6. <<License>>
 
 

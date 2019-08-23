@@ -1,4 +1,4 @@
-## Workload Tab Metrics
+## Workload Card Metrics
 
 ### 1. Daemon Sets
 

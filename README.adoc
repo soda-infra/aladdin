@@ -106,7 +106,9 @@ https://github.com/soda-infra/aladdin/wiki
 ### Aladdin Live Demo
 link:http://210.89.189.131:32443/kiali/[Demo]
 
+
 ID : admin
+
 PW : admin
 
 

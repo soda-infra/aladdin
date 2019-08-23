@@ -99,7 +99,7 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics, cAdvisor to visuali
 * Kiali - v1.1.0 (see kiali tag)
 * Kiali-ui - v1.2.0
 
-### Wiki for Aladdin(Korean)
+### Wiki for Aladdin(한글-Korean)
 https://github.com/soda-infra/aladdin/wiki
 
 ### License

@@ -4,7 +4,7 @@
 ### Introduction
 
 
-Aladdin provide Network Visualization & Kubernetes Monitoring
+Aladdin provide Network Visualization & Kubernetes Monitoring for micro services
 
 #### Infrasturcture Overview
 image::https://github.com/soda-infra/aladdin/blob/master/images/aladdin-Infrastructure.png[Aladdin-infrastructure, width=880]

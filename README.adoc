@@ -1,6 +1,5 @@
 # Aladdin 
 
-## Index
 1. <<Introduction>>
 2. <<Getting Started>>
 3. <<Platform Version in Aladdin>>

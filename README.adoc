@@ -13,13 +13,13 @@ image::https://github.com/soda-infra/aladdin/blob/master/images/aladdin-Infrastr
 image::https://github.com/soda-infra/aladdin/blob/master/images/aladdin-kubernetes.png[Aladdin-kubernetes, width=880]
 
 ### Description
-Aladdin is a project that modified and improved the `Kiali` project. It covers various metrics as well as network metrics used in Kiali.
+Aladdin is a project that modified and improved the Kiali project. It covers various metrics as well as network metrics used in Kiali.
 
 Aladdin works with Istio, Node Exporter, Kube-state-metrics to visualize service mesh topology, infrastructure, kubernetes cluster.
 
 ### Getting Started
 
-    # install helm
+#### install helm
     curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > install-helm.sh
     chmod u+x install-helm.sh
     ./install-helm.sh
@@ -27,18 +27,18 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics to visualize service
     kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
     helm init --service-account tiller
 
-    # download istio
+#### download istio
     git clone https://github.com/soda-infra/istio
     cd istio
     git checkout release-1.2
     
-    # install istio-init
+#### install istio-init
     helm install install/kubernetes/helm/istio-init --name istio-init --namespace istio-system
    
-    # verify istio-init (아래 명령 결과가 23이 나오면 완료)
+#### verify istio-init (아래 명령 결과가 23이 나오면 완료)
     kubectl get crds | grep 'istio.io\|certmanager.k8s.io' | wc -l
     
-    # kiali secret 생성 (username: admin, password: admin)
+#### kiali secret 생성 (username: admin, password: admin)
     cat <<EOF | kubectl apply -f -
     apiVersion: v1
     kind: Secret
@@ -53,7 +53,7 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics to visualize service
       passphrase: YWRtaW4=
     EOF
     
-    # install istio
+#### install istio
     helm install install/kubernetes/helm/istio \
     --name istio \
     --namespace istio-system \
@@ -63,11 +63,11 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics to visualize service
     --set kiali.enabled=true \
     --set servicegraph.enabled=true
     
-    # install aladdin-requirements
+#### install aladdin-requirements
     git clone https://github.com/soda-infra/aladdin-requirements
     helm install aladdin-requirements --name aladdin-requirements
     
-    # loading istio example
+#### loading istio example
     kubectl label namespace default istio-injection=enabled
     kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
     kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
@@ -77,13 +77,13 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics to visualize service
     export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
     kubectl apply -f samples/bookinfo/networking/destination-rule-all-mtls.yaml
     
-    # verify
+#### verify
     curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
     
-    # check kiali port (kiali 포트로 접속)
+#### check kiali port (kiali 포트로 접속)
     kubectl get svc -A
     
-    # make traffic
+#### make traffic
     cat >> ~/makeTraffic.sh <<EOF
     for ((i=1;i<=10000000;i++)); do
         curl -v --header "Connection: keep-alive" "http://127.0.0.1:31380/productpage";

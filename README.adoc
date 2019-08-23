@@ -4,7 +4,7 @@
 1. <<Introduction>>
 2. <<Getting Started>>
 3. <<Platform Version in Aladdin>>
-4. <<Wiki for Aladdin>>
+4. <<:boom: Wiki for Aladdin>>
 5. <<:boom: Aladdin Live Demo>>
 6. <<License>>
 

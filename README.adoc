@@ -1,5 +1,7 @@
 # Aladdin 
 
+## Index
+1. [Introduction] (#Introduction)
 
 ### Introduction
 

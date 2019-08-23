@@ -6,7 +6,7 @@
 
 Aladdin provide Network Visualization & Kubernetes Monitoring
 
-image::https://raw.githubusercontent.com/soda-infra/aladdin/images/aladdin-infrastructure.png[Aladdin, width=880]
+image::https://github.com/soda-infra/aladdin/blob/master/images/aladdin-Infrastructure.png[Aladdin, width=880]
 
 ### Getting Started
 

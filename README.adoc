@@ -6,9 +6,16 @@
 
 Aladdin provide Network Visualization & Kubernetes Monitoring
 
+#### Infrasturcture Overview
 image::https://github.com/soda-infra/aladdin/blob/master/images/aladdin-Infrastructure.png[Aladdin-infrastructure, width=880]
 
+#### Kubernetes Overview
 image::https://github.com/soda-infra/aladdin/blob/master/images/aladdin-kubernetes.png[Aladdin-kubernetes, width=880]
+
+### Description
+Aladdin is a project that modified and improved the `Kiali` project. It covers various metrics as well as network metrics used in Kiali.
+
+Aladdin works with Istio, Node Exporter, Kube-state-metrics to visualize service mesh topology, infrastructure, kubernetes cluster.
 
 ### Getting Started
 

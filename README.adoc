@@ -104,7 +104,8 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics, cAdvisor to visuali
 https://github.com/soda-infra/aladdin/wiki
 
 ### Aladdin Live Demo
-[Demo](http://210.89.189.131:32443/kiali/)
+link:http://210.89.189.131:32443/kiali/[Demo]
+
 ID : admin
 PW : admin
 

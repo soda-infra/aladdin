@@ -99,12 +99,12 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics, cAdvisor to visuali
 * Kiali - v1.1.0 (see kiali tag)
 * Kiali-ui - v1.2.0
 
-### Wiki for Aladdin
+### :boom: Wiki for Aladdin
 한글화되어있는 Aladdin 문서입니다.
 
 https://github.com/soda-infra/aladdin/wiki
 
-### Aladdin Live Demo
+### :boom: Aladdin Live Demo
 link:http://210.89.189.131:32443/kiali/[Demo]
 
 

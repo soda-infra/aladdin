@@ -4,8 +4,7 @@
 2. <<Getting Started>>
 3. <<Platform Version in Aladdin>>
 4. <<:boom: Wiki for Aladdin>>
-5. <<:boom: Aladdin Live Demo>>
-6. <<License>>
+5. <<License>>
 
 
 ### Introduction
@@ -109,12 +108,7 @@ Aladdin works with Istio, Node Exporter, Kube-state-metrics, cAdvisor to visuali
 ### :boom: Wiki for Aladdin
 한글화되어있는 link:https://github.com/soda-infra/aladdin/wiki[Aladdin wiki문서]입니다.
 
-
-
-### :boom: Aladdin Live Demo
-link:http://210.89.189.131:32443/kiali/[Demo]
-
-
+### Default ID/PW for Aladdin
 > ID : admin
 >
 > PW : admin
